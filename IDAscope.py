@@ -42,10 +42,12 @@ from idascope.core.WinApiProvider import WinApiProvider
 from idascope.core.CryptoIdentifier import CryptoIdentifier
 from idascope.core.YaraScanner import YaraScanner
 from idascope.core.IdaProxy import IdaProxy
+from idascope.core.SemanticExplorer import SemanticExplorer
 from idascope.widgets.FunctionInspectionWidget import FunctionInspectionWidget
 from idascope.widgets.WinApiWidget import WinApiWidget
 from idascope.widgets.CryptoIdentificationWidget import CryptoIdentificationWidget
 from idascope.widgets.YaraScannerWidget import YaraScannerWidget
+from idascope.widgets.SemanticExplorerWidget import SemanticExplorerWidget
 
 ################################################################################
 # Core of the IDAscope GUI.
@@ -53,7 +55,7 @@ from idascope.widgets.YaraScannerWidget import YaraScannerWidget
 
 HOTKEYS = None
 IDASCOPE = None
-NAME = "simpliFiRE.IDAscope v1.1"
+NAME = "simpliFiRE.IDAscope v1.2"
 
 
 class IDAscopeForm(PluginForm):
@@ -95,6 +97,7 @@ class IDAscopeForm(PluginForm):
         """
         time_before = time.time()
         print ("[/] setting up shared modules...")
+        self.semantic_explorer = SemanticExplorer(self.config)
         self.documentation_helper = DocumentationHelper(self.config)
         self.semantic_identifier = SemanticIdentifier(self.config)
         self.winapi_provider = WinApiProvider(self.config)
@@ -109,6 +112,7 @@ class IDAscopeForm(PluginForm):
         """
         time_before = time.time()
         print ("[/] setting up widgets...")
+        self.idascope_widgets.append(SemanticExplorerWidget(self))
         self.idascope_widgets.append(FunctionInspectionWidget(self))
         self.idascope_widgets.append(WinApiWidget(self))
         self.idascope_widgets.append(CryptoIdentificationWidget(self))
@@ -160,7 +164,7 @@ class IDAscopeForm(PluginForm):
         del IDASCOPE
 
     def Show(self):
-        if idc.GetInputMD5() == None:
+        if idc.GetInputMD5() is None:
             return
         else:
             return PluginForm.Show(self,

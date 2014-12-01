@@ -39,7 +39,7 @@ class WinApiWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
         print "[|] loading WinApiWidget"
         self.parent = parent
-        self.name = "WinAPI Browsing"
+        self.name = "WinAPI"
         self.icon = QIcon(self.parent.config.icon_file_path + "winapi.png")
         self.search_icon = QIcon(self.parent.config.icon_file_path + "search.png")
         self.back_icon = QIcon(self.parent.config.icon_file_path + "back.png")

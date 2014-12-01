@@ -41,8 +41,8 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         print "[|] loading FunctionInspectionWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
-        self.name = "Function Inspection"
-        self.icon = QIcon(self.parent.config.icon_file_path + "semantics.png")
+        self.name = "Functions"
+        self.icon = QIcon(self.parent.config.icon_file_path + "inspection.png")
         # This widget relies on the semantic identifier and uses some functions via IDA proxy
         self.si = self.parent.semantic_identifier
         self.context_filter = self.si.createFunctionContextFilter()
@@ -468,9 +468,9 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         if mi.column() == 1:
             for widget in self.parent.idascope_widgets:
-                if widget.name == "WinAPI Browsing":
+                if widget.name == "WinAPI":
                     widget.navigate(self.calls_table.item(mi.row(), mi.column()).text())
-                    self.parent.setTabFocus("WinAPI Browsing")
+                    self.parent.setTabFocus("WinAPI")
         else:
             clicked_function_address = self.calls_table.item(mi.row(), 0).text()
             self.ida_proxy.Jump(int(clicked_function_address, 16))

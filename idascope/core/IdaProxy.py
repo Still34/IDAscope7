@@ -60,6 +60,8 @@ class IdaProxy():
         self.SEGMOD_KILL = self.idaapi.SEGMOD_KILL
         self.SEARCH_DOWN = 1
         self.MFF_FAST = self.idaapi.MFF_FAST
+        self.ASCSTR_C = self.idc.ASCSTR_C
+        self.FUNCATTR_START = self.idc.FUNCATTR_START
 
 ###############################################################################
 # From idc.py
@@ -74,17 +76,26 @@ class IdaProxy():
     def Byte(self, byte):
         return self.idc.Byte(byte)
 
+    def Comment(self, addr):
+        return self.idc.Comment(addr)
+
     def DelSeg(self, address, flags):
         return self.idc.DelSeg(address, flags)
 
     def Demangle(self, name, disable_mask):
         return self.idc.Demangle(name, disable_mask)
 
+    def Dword(self, addr):
+        return self.idc.Dword(addr)
+
     def FirstSeg(self):
         return self.idc.FirstSeg()
 
     def get_byte(self, address):
         return self.idaapi.get_byte(address)
+
+    def GetCommentEx(self, ea, repeatable):
+        return self.idaapi.GetCommentEx(ea, repeatable)
 
     def GetDisasm(self, address):
         return self.idc.GetDisasm(address)
@@ -95,17 +106,41 @@ class IdaProxy():
     def GetFunctionAttr(self, ea, attr):
         return self.idc.GetFunctionAttr(ea, attr)
 
+    def GetFunctionCmt(self, ea, repeatable):
+        return self.idc.GetFunctionCmt(ea, repeatable)
+
     def GetFunctionFlags(self, address):
         return self.idc.GetFunctionFlags(address)
 
     def GetFunctionName(self, address):
         return self.idc.GetFunctionName(address)
 
+    def GetFrame(self, ea):
+        return self.idc.GetFrame(ea)
+
     def GetLongPrm(self, offset):
         return self.idc.GetLongPrm(offset)
 
+    def GetLastMember(self, sid):
+        return self.idc.GetLastMember(sid)
+
     def GetMnem(self, address):
         return self.idc.GetMnem(address)
+
+    def GetMemberComment(self, sid, member_offset, repeatable):
+        return self.idc.GetMemberComment(sid, member_offset, repeatable)
+
+    def GetMemberFlag(self, sid, member_offset):
+        return self.idc.GetMemberFlag(sid, member_offset)
+
+    def GetMemberName(self, sid, member_offset):
+        return self.idc.GetMemberName(sid, member_offset)
+
+    def GetMemberSize(self, sid, member_offset):
+        return self.idc.GetMemberSize(sid, member_offset)
+
+    def GetMemberOffset(self, sid, member_name):
+        return self.idc.GetMemberOffset(sid, member_name)
 
     def GetOpType(self, address, index):
         return self.idc.GetOpType(address, index)
@@ -155,6 +190,9 @@ class IdaProxy():
     def PrevHead(self, ea, minea=0):
         return self.idc.PrevHead(ea, minea)
 
+    def NextHead(self, ea, minea=0):
+        return self.idc.NextHead(ea, minea)
+
     def RptCmt(self, ea):
         return self.idc.RptCmt(ea)
 
@@ -173,15 +211,15 @@ class IdaProxy():
     def SetColor(self, address, location_type, color):
         return self.idc.SetColor(address, location_type, color)
 
+    def GetOpnd(self, ea, n):
+        return self.idc.GetOpnd(ea, n)
+
 ###############################################################################
 # From idaapi.py
 ###############################################################################
 
     def CompileLine(self, line):
         return self.idaapi.CompileLine(line)
-
-    def enum_import_names(self, index, callback):
-        return self.idaapi.enum_import_names(index, callback)
 
     def find_not_func(self, *args):
         return self.idaapi.find_not_func(*args)
@@ -208,12 +246,6 @@ class IdaProxy():
     def get_highlighted_identifier(self):
         return self.idaapi.get_highlighted_identifier()
 
-    def get_import_module_name(self, index):
-        return self.idaapi.get_import_module_name(index)
-
-    def get_import_module_qty(self):
-        return self.idaapi.get_import_module_qty()
-
     def isASCII(self, flags):
         return self.idaapi.isASCII(flags)
 
@@ -222,6 +254,15 @@ class IdaProxy():
 
     def refresh_idaview_anyway(self):
         return self.idaapi.refresh_idaview_anyway()
+
+    def get_import_module_qty(self):
+        return self.idaapi.get_import_module_qty()
+
+    def get_import_module_name(self, mod_index):
+        return self.idaapi.get_import_module_name(mod_index)
+
+    def enum_import_names(self, mod_index, py_cb):
+        return self.idaapi.enum_import_names(mod_index, py_cb)
 
 ###############################################################################
 # From idautils.py

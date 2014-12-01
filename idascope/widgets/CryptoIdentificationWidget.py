@@ -38,7 +38,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         print "[|] loading CryptoIdentificationWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
-        self.name = "Crypto Identification"
+        self.name = "Crypto"
         self.icon = QIcon(self.parent.config.icon_file_path + "crypto.png")
         # This widget relies on the crypto identifier and uses some functions via IDA proxy
         self.ci = self.parent.crypto_identifier
@@ -403,7 +403,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
                 self.qtreewidgetitems_to_addresses[hit_information] = hit.start_address
                 for xref in hit.code_refs_to:
                     code_ref = self.QtGui.QTreeWidgetItem(hit_information)
-                    code_ref.setText(0, "referenced by 0x%x (function: %s)" % (xref[0], \
+                    code_ref.setText(0, "referenced by 0x%x (function: %s)" % (xref[0],
                         self.ip.GetFunctionName(xref[0])))
                     if xref[1]:
                         code_ref.setForeground(0, self.QtGui.QBrush(self.QtGui.QColor(0xFF0000)))

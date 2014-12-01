@@ -59,7 +59,7 @@ class DocumentationHelper():
         self.default_highlight_color = 0x3333FF
         self.color_state = "unknown"
         self.idascope_config = idascope_config
-        self._loadConfig(self.idascope_config.semantics_file)
+        self._loadConfig(self.idascope_config.inspection_tags_file)
         return
 
     def _loadConfig(self, config_filename):

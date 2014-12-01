@@ -103,8 +103,8 @@ class SemanticIdentifier():
         @param config_filename: filename of a semantic configuration file
         @type config_filename: str
         """
-        for filename in [fn for fn in self.os.listdir(config.semantics_folder) if fn.endswith(".json")]:
-            loaded_file = self._loadSemanticsFile(config.semantics_folder + self.os.sep + filename)
+        for filename in [fn for fn in self.os.listdir(config.inspection_profiles_folder) if fn.endswith(".json")]:
+            loaded_file = self._loadSemanticsFile(config.inspection_profiles_folder + self.os.sep + filename)
             self.semantics[loaded_file["name"]] = loaded_file
         if config.inspection_default_semantics in self.semantics:
             self._setSemantics(config.inspection_default_semantics)

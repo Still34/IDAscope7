@@ -32,6 +32,7 @@
 import os
 import re
 import time
+import traceback
 
 try:
     import yara
@@ -85,7 +86,7 @@ class YaraScanner():
             self._load_file(yara_path)
         elif os.path.isdir(yara_path):
             for dirpath, dirnames, filenames in os.walk(yara_path):
-                for filename in filenames:
+                for filename in sorted(filenames):
                     filepath = dirpath + os.sep + filename
                     self._load_file(filepath)
 
@@ -100,8 +101,11 @@ class YaraScanner():
             print "loading rules from file: %s (%d)" % (filepath, len(rules_from_file))
             if rules:
                 self.num_files_loaded += 1
-        except:
-            print "[!] Could not load yara rules from file: %s" % filepath
+        except Exception as exc:
+            print "[!] Could not load yara rules from file: %s --- Exception: " % filepath
+            print ">" * 60
+            print traceback.format_exc(exc)
+            print "<" * 60
 
     def scan(self):
         if not self.yara:

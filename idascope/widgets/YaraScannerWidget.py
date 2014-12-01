@@ -38,7 +38,7 @@ class YaraScannerWidget(QtGui.QMainWindow):
         print "[|] loading YaraScannerWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
-        self.name = "YARA Scanner"
+        self.name = "YARA"
         self.icon = QIcon(self.parent.config.icon_file_path + "yarascan.png")
         # This widget relies on yara scanner for resuls and scanning as well as IdaProxy for navigation
         self.ys = self.parent.yara_scanner

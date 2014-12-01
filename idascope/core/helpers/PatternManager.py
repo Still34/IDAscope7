@@ -157,6 +157,15 @@ class PatternManager:
         struct.pack("<I", 0x98badcfe): "md5/sha1 initial values",
         struct.pack("<I", 0x10325476): "md5/sha1 initial values",
         struct.pack("<I", 0xc3d2e1f0): "md5/sha1 initial values",
+   
+        struct.pack("<I", 0x6a09e667): "sha256 initial values",
+        struct.pack("<I", 0xbb67ae85): "sha256 initial values",
+        struct.pack("<I", 0x3c6ef372): "sha256 initial values",
+        struct.pack("<I", 0xa54ff53a): "sha256 initial values",
+        struct.pack("<I", 0x510e527f): "sha256 initial values",
+        struct.pack("<I", 0x9b05688c): "sha256 initial values",
+        struct.pack("<I", 0x1f83d9ab): "sha256 initial values",
+        struct.pack("<I", 0x5be0cd19): "sha256 initial values",
 
         struct.pack("<Q", 0xA5A5A5A5A5A5A5A5): "TIGER Initialization",
         struct.pack("<Q", 0x0123456789ABCDEF): "TIGER Initialization",
@@ -327,7 +336,9 @@ class PatternManager:
 
         str("\xfd\x43\x03\x00"): "rand() magic",
         str("\xc3\x9e\x26\x00"): "rand() magic",
-
+        
+        str("\x05\x84\x08\x08"): "ZipCrypto",
+        
         VariablePattern("30 82 ? ? 30 82 ? ?"): "PKCS: X.509 Certificate",
         VariablePattern("30 82 ? ? 02 01 00 02 41"): "PKCS: Private-Key (512 bit)",
         VariablePattern("30 82 ? ? 02 01 00 02 81 81"): "PKCS: Private-Key (1024 bit)",
