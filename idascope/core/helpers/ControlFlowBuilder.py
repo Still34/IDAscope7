@@ -46,7 +46,7 @@ class ControlFlowBuilder():
         block_calls = {}
         function_apis = {}
 
-        print "Obtaining control flow...",
+        print "\n  Calculating control flow...",
         for function_ea in self.ida_proxy.Functions():
             function_name = self.ida_proxy.GetFunctionName(function_ea)
 
@@ -81,9 +81,9 @@ class ControlFlowBuilder():
                                 semanticRefs[api] = semanticRefs.get(api, set())
                                 semanticRefs[api].add(block)
 
-        print "done."
-        print "Prunning flow control...",
+        print " done."
+        print "  Pruning flow graph...",
         predecessors, successors = ControlFlowFilter(self.func_blocks, self.predecessors, self.successors).filter()
-        print "done."
+        print " done."
 
         return self.func_blocks, function_apis, block_calls, successors, predecessors, semanticRefs

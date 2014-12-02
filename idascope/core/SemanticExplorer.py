@@ -105,7 +105,7 @@ class SemanticExplorer():
 # real
 
     def load_json(self, json_file):
-        print "loading json file: ", json_file
+        print "  loading json file: ", json_file
         loaded_dictionary = {}
         if self.os.path.isfile(json_file):
             with open(json_file) as inf:
@@ -131,16 +131,16 @@ class SemanticExplorer():
         return start_apis
 
     def analyze(self):
-        self._analyzeDemo()
-        return self.semantic_matches
+        # self._analyzeDemo()
+        # return self.semantic_matches
         time_before = self.time.time()
-        print "\nBuilding data structure..."
+        print "\n  Building data structures..."
         self.buildDataStructure()
-        print "done in...%3.2f seconds.\n" % (self.time.time() - time_before)
+        print "  completed after %3.2f seconds.\n" % (self.time.time() - time_before)
 
-        print "\nMatching Semantics..."
+        print "\n   Matching Semantics..."
         self.semantic_matches = self.matchAll()
-        print ("Analysis completed in %3.2f seconds.\n" % (self.time.time() - time_before))
+        print ("\n  Full analysis completed in %3.2f seconds.\n" % (self.time.time() - time_before))
         return self.semantic_matches
 
     def buildDataStructure(self):

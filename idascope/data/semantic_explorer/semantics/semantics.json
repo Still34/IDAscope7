@@ -42,6 +42,46 @@
 "api_sequence": [{ 
 		 "api" : "CryptDecrypt", "parameters" : []
 		}]
+}
+{
+"category": "Cryptography",
+"tag" :  "Encrypt via Microsoft Enhanced Provider",
+"api_sequence": [{ 
+		 "api" : "CryptEncrypt", "parameters" : []
+		}]
+}
+{
+"category": "Cryptography",
+"tag" :  "Decrypt with imported key",
+"api_sequence": [{ 
+		 "api" : "CryptImportKey", "parameters" : []
+		},
+		{ 
+		 "api" : "CryptDecrypt", "parameters" : []
+		}]
+}
+{
+"category": "Cryptography",
+"tag" :  "Encrypt with imported key",
+"api_sequence": [{ 
+		 "api" : "CryptImportKey", "parameters" : []
+		},
+		{ 
+		 "api" : "CryptEncrypt", "parameters" : []
+		}]
+},
+{
+"category": "Cryptography",
+"tag" :  "Calculate a hash",
+"api_sequence": [{ 
+		 "api" : "CryptCreateHash", "parameters" : []
+		},
+		{ 
+		 "api" : "CryptHashData", "parameters" : []
+		},
+		{ 
+		 "api" : "CryptGetHashParam", "parameters" : []
+		}]
 },
 {
 "category": "Cryptography",
@@ -72,7 +112,31 @@
 		 "api" : "CertCloseStore", "parameters" : []
 		}]
 },
-
+{
+"category": "Network",
+"tag" :  "Connectivity check",
+"api_sequence": [
+		{ 
+		 "api" : "socket", "parameters" : []
+		},
+		{ 
+		 "api" : "connect", "parameters" : []
+		},
+		{ 
+		 "api" : "closesocket", "parameters" : []
+		}]
+},
+{
+"category": "Network",
+"tag" :  "Resolve hostname to IP address",
+"api_sequence": [
+		{ 
+		 "api" : "gethostbyname", "parameters" : []
+		},
+		{ 
+		 "api" : "inet_addr", "parameters" : []
+		}]
+},
 {
 "category": "Network",
 "tag" :  "Enable remote communication",
@@ -89,7 +153,6 @@
 		 "api" : "recv", "parameters" : []
 		}]
 },
-
 {
 "category": "Network",
 "tag" :  "Communicate with remote host",
@@ -119,7 +182,6 @@
 		 "api" : "wsprintfA", "parameters" : []
 		}]
 },
-
 {
 "category": "Network",
 "tag" :  "Communicate with remote host",
@@ -137,7 +199,6 @@
 		 "api" : "connect", "parameters" : []
 		}]
 },
-
 {
 "category": "Network",
 "tag" :  "Receive data from remote host",
@@ -167,6 +228,23 @@
 		 "api" : "WriteFile",
 		 "parameters" : []
 		}]
+},
+{
+"category": "Network",
+"tag" :  "Perform an HTTP request",
+"api_sequence": [{ 
+		 "api" : "InternetOpen", "parameters" : []
+		},
+		{ 
+		 "api" : "InternetConnect", "parameters" : []
+		},
+		{ 
+		 "api" : "HttpOpenRequest", "parameters" : []
+		},
+		{ 
+		 "api" : "HttpSendRequest", "parameters" : []
+		}
+		]
 },
 {
 "category": "Network",
@@ -333,10 +411,6 @@
 "category": "File system",
 "tag" :  "Query removable media",
 "api_sequence": [{ 
-		 "api" : "GetWindowsDirectory",
-		 "parameters" : []
-		},
-		{ 
 		 "api" : "GetDriveType",
 		 "parameters" : []
 		},
@@ -390,7 +464,7 @@
 		}]
 },
 {
-"category": "Configuration",
+"category": "Time",
 "tag" :  "Query local time",
 "api_sequence": [{ 
 		 "api" : "GetLocalTime",
@@ -398,7 +472,7 @@
 		}]
 },
 {
-"category": "Configuration",
+"category": "Time",
 "tag" :  "Query system (as file time)",
 "api_sequence": [{ 
 		 "api" : "GetSystemTimeAsFileTime",
@@ -406,7 +480,7 @@
 		}]
 },
 {
-"category": "Configuration",
+"category": "Time",
 "tag" :  "Query system time",
 "api_sequence": [{ 
 		 "api" : "GetSystemTime",
@@ -414,7 +488,7 @@
 		}]
 },
 {
-"category": "Configuration",
+"category": "Time",
 "tag" :  "Convert date and time",
 "api_sequence": [{ 
 		 "api" : "SystemTimeToFileTime",
@@ -422,7 +496,7 @@
 		}]
 },
 {
-"category": "Configuration",
+"category": "Time",
 "tag" :  "query time zone information",
 "api_sequence": [{ 
 		 "api" : "GetTimeZoneInformation",
@@ -430,20 +504,21 @@
 		}]
 },
 { 
-"category": "Configuration",
-"tag" :  "Query user information",  
-"api_sequence": [{
-		 "api" : "GetUserDefaultUILanguage", "parameters" : []		
-		},
-
-		{"api" : "GetModuleFileName", "parameters" : []
-		},
-
+"category": "Reconaissance",
+"tag" :  "Query user name information",  
+"api_sequence": [
 		{"api" : "GetUserName", "parameters" : []
 		}]
 },
 { 
-"category": "Configuration",
+"category": "Reconaissance",
+"tag" :  "Query user interface language",  
+"api_sequence": [{
+		 "api" : "GetUserDefaultUILanguage", "parameters" : []		
+		}]
+},
+{ 
+"category": "Reconaissance",
 "tag" :  "Query system and version information",  
 "api_sequence": [{
 		 "api" : "GetVersion", "parameters" : []		
@@ -473,7 +548,7 @@
 		}]
 },
 { 
-"category": "Configuration",
+"category": "Reconaissance",
 "tag" :  "Query Windows Version",  
 "api_sequence": [{
 		 "api" : "GetProcessHeap", "parameters" : []		
@@ -487,7 +562,7 @@
 },
 { 
 "category": "Execution",
-"tag" :  "create a new desktop",  
+"tag" :  "Create a new desktop",  
 "api_sequence": [{
 		 "api" : "OpenDesktop", "parameters" : []		
 		},
@@ -497,28 +572,46 @@
 },
 { 
 "category": "Execution",
-"tag" :  "Retrieve clipboard data",  
+"tag" :  "Modify clipboard data",  
 "api_sequence": [{
 		 "api" : "OpenClipboard", "parameters" : []		
 		},
-
 		{"api" : "SetClipboardData", "parameters" : []
 		},
-
 		{"api" : "CloseClipboard", "parameters" : []
 		}]
 },
 {
-"category": "Execution",
-"tag" :  "Retrieve Clipboard data",
+"category": "Information Stealing",
+"tag" :  "Extract Clipboard data",
 "api_sequence": [{ 
 		 "api" : "GetClipboardData",
 		 "parameters" : []
 		}]
 },
+{
+"category": "Information Stealing",
+"tag" :  "Capture Mouse events",
+"api_sequence": [{ 
+		 "api" : "SetCapture",
+		 "parameters" : []
+		}]
+},
+{
+"category": "Information Stealing",
+"tag" :  "Make a screenshot",
+"api_sequence": [{ 
+		 "api" : "GetDC",
+		 "parameters" : []
+		},
+		{ 
+		 "api" : "PrintWindow",
+		 "parameters" : []
+		}]
+},
 { 
 "category": "Execution",
-"tag" :  "Modify clipboard data",  
+"tag" :  "Delete clipboard data",  
 "api_sequence": [{
 		 "api" : "OpenClipboard", "parameters" : []		
 		},
@@ -550,7 +643,7 @@
 },
 { 
 "category": "Network",
-"tag" :  "act as a backdoor",  
+"tag" :  "Check network availability",  
 "api_sequence": [{
 		 "api" : "socket", "parameters" : []		
 		},
@@ -560,10 +653,18 @@
 		}]
 },
 {
-"category": "Keylogger",
-"tag" :  "Retrieve status of virtual keys",
+"category": "Information Stealing",
+"tag" :  "Keylogger: Retrieve status of virtual keys",
 "api_sequence": [{ 
 		 "api" : "GetKeyboardState",
+		 "parameters" : []
+		}]
+},
+{
+"category": "Reconaissance",
+"tag" :  "Identify installed keyboard layouts",
+"api_sequence": [{ 
+		 "api" : "GetKeyboardLayoutList",
 		 "parameters" : []
 		}]
 },
@@ -786,7 +887,7 @@
 		}]
 },
 { 
-"category": "Execution",
+"category": "Privileges",
 "tag" :  "Privilege escalation",  
 "api_sequence": [{
 		 "api" : "GetCurrentProcess", "parameters" : []		
@@ -799,7 +900,7 @@
 		}]
 },
 { 
-"category": "Execution",
+"category": "Privileges",
 "tag" :  "Privilege escalation",  
 "api_sequence": [{
 		 "api" : "OpenProcessToken", "parameters" : []		
@@ -812,7 +913,7 @@
 		}]
 },
 { 
-"category": "Execution",
+"category": "Privileges",
 "tag" :  "Adjust privileges of service",  
 "api_sequence": [{
 		 "api" : "OpenService", "parameters" : []		
@@ -855,7 +956,7 @@
 		}]
 },
 { 
-"category": "Execution",
+"category": "Imports",
 "tag" :  "Dynamic import loading",  
 "api_sequence": [{
 		 "api" : "LoadLibrary", "parameters" : []		
@@ -868,7 +969,7 @@
 		}]
 },
 { 
-"category": "Execution",
+"category": "Imports",
 "tag" :  "Dynamic import loading",  
 "api_sequence": [{
 		 "api" : "GetModuleHandle", "parameters" : []		
@@ -927,7 +1028,7 @@
 		}]
 },
 { 
-"category": "Configuration",
+"category": "Privileges",
 "tag" :  "Modify a security descriptor",  
 "api_sequence": [{
 		 "api" : "ConvertStringSecurityDescriptorToSecurityDescriptor", "parameters" : []		
@@ -941,21 +1042,10 @@
 },
 { 
 "category": "Execution",
-"tag" :  "Check for attached Remote Desktop",  
-"api_sequence": [{
-		 "api" : "LoadLibrary", "parameters" : []		
-		},
-		{ 
-		 "api" : "GetProcAddress", "parameters" : []
-		},
+"tag" :  "Check for active session (i.e. if someone is logged in)",  
+"api_sequence": [
 		{ 
 		 "api" : "WTSGetActiveConsoleSessionId", "parameters" : []
-		},
-		{ 
-		 "api" : "GetFileAttributes", "parameters" : []
-		},
-		{ 
-		 "api" : "FreeLibrary", "parameters" : []
 		}]
 },
 { 
@@ -969,7 +1059,7 @@
 		}]
 },
 { 
-"category": "Configuration",
+"category": "Privileges",
 "tag" :  "Modify ACL of a security descriptor",  
 "api_sequence": [{ 
 		 "api" : "GetSecurityDescriptorSacl", "parameters" : []
@@ -979,7 +1069,7 @@
 		}]
 },
 { 
-"category": "Configuration",
+"category": "Privileges",
 "tag" :  "Modify ACL of a security descriptor",  
 "api_sequence": [{
 		 "api" : "InitializeSecurityDescriptor", "parameters" : []		
@@ -1006,7 +1096,7 @@
 },
 { 
 "category": "Execution",
-"tag" :  "reboot the system",   
+"tag" :  "Modify the current session (log off, reboot, ...)",   
 "api_sequence": [{ 
 		 "api" : "ExitWindows", "parameters" : []
 		}]
@@ -1026,6 +1116,25 @@
 "tag" :  "Access native DLL loader functionality",  
 "api_sequence": [{
 		 "api" : "GetProcAddress", "parameters" : [{"name":"lpProcName", "value" : "LdrLoadDll"}]	
+		}]
+},
+{
+"category": "Configuration",
+"tag" :  "Load data from resource section",
+"api_sequence": [
+		{ 
+		 "api" : "FindResource", "parameters" : []
+		},
+		{ 
+		 "api" : "LoadResource", "parameters" : []
+		}]
+},
+{
+"category": "COM",
+"tag" :  "Initialize COM object",
+"api_sequence": [
+		{ 
+		 "api" : "CoCreateInstance", "parameters" : []
 		}]
 }
 ]
