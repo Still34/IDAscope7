@@ -42,14 +42,14 @@
 "api_sequence": [{ 
 		 "api" : "CryptDecrypt", "parameters" : []
 		}]
-}
+},
 {
 "category": "Cryptography",
 "tag" :  "Encrypt via Microsoft Enhanced Provider",
 "api_sequence": [{ 
 		 "api" : "CryptEncrypt", "parameters" : []
 		}]
-}
+},
 {
 "category": "Cryptography",
 "tag" :  "Decrypt with imported key",
@@ -59,7 +59,7 @@
 		{ 
 		 "api" : "CryptDecrypt", "parameters" : []
 		}]
-}
+},
 {
 "category": "Cryptography",
 "tag" :  "Encrypt with imported key",
