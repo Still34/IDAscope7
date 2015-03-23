@@ -312,7 +312,7 @@ class WinApiProvider():
         @return: (str) a waiting message if the keyword has been queried or a negative answer if
             there are no entries in MSDN
         """
-        feed_url = "http://social.msdn.microsoft.com/Search/en-us/feed?format=RSS&Query=%s" % keyword
+        feed_url = "https://social.msdn.microsoft.com/search/en-US/feed?format=RSS&query=%s" % keyword
         feed_content = self.downloader.download(feed_url)
         if not feed_content:
             return "<p>Could not access the MSDN feed. Check your Internet connection.</p>"

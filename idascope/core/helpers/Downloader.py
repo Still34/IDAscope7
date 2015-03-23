@@ -101,10 +101,10 @@ class Downloader(QtCore.QObject):
         @return: (str) the downloaded content.
         """
         # print "Downloader.download(): type of received parameter: ", type(url)
-        host = url[7:url.find("/", 7)]
-        path = url[url.find("/", 7):]
+        host = url[8:url.find("/", 8)]
+        path = url[url.find("/", 8):]
         try:
-            conn = self.httplib.HTTPConnection(host)
+            conn = self.httplib.HTTPSConnection(host)
             conn.request("GET", path)
             response = conn.getresponse()
             if response.status == 200:
