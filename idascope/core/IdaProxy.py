@@ -43,7 +43,7 @@ class IdaProxy():
         # debug output
         self.verbose = False
         # constants
-        self.BAD_ADDR = 0xffffffff
+        self.BAD_ADDR = self.idaapi.BADADDR
         self.CIC_ITEM = self.idc.CIC_ITEM
         self.FF_LABL = self.idc.FF_LABL
         self.FL_CN = self.idc.fl_CN
