@@ -24,30 +24,29 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QCompleter, QLineEdit, QStringListModel, QTextBrowser, QIcon
+import idascope.core.helpers.QtShim as QtShim
+QWidget = QtShim.get_QWidget()
 
 import idascope.core.helpers.Misc as Misc
 
 
-class WinApiWidget(QtGui.QWidget):
+class WinApiWidget(QWidget):
     """
     A widget for allowing easy access to Windows API information. Front-end to the I{idascope.core.WinApiProvider}.
     """
 
     def __init__(self, parent):
-        QtGui.QWidget.__init__(self)
+        self.cc = parent.cc
+        self.cc.QWidget.__init__(self)
         print "[|] loading WinApiWidget"
         self.parent = parent
         self.name = "WinAPI"
-        self.icon = QIcon(self.parent.config.icon_file_path + "winapi.png")
-        self.search_icon = QIcon(self.parent.config.icon_file_path + "search.png")
-        self.back_icon = QIcon(self.parent.config.icon_file_path + "back.png")
-        self.forward_icon = QIcon(self.parent.config.icon_file_path + "forward.png")
-        self.online_icon = QIcon(self.parent.config.icon_file_path + "online.png")
-        self.ida_proxy = self.parent.ida_proxy
-        self.QtGui = QtGui
-        self.QtCore = QtCore
+        self.icon = self.cc.QIcon(self.parent.config.icon_file_path + "winapi.png")
+        self.search_icon = self.cc.QIcon(self.parent.config.icon_file_path + "search.png")
+        self.back_icon = self.cc.QIcon(self.parent.config.icon_file_path + "back.png")
+        self.forward_icon = self.cc.QIcon(self.parent.config.icon_file_path + "forward.png")
+        self.online_icon = self.cc.QIcon(self.parent.config.icon_file_path + "online.png")
+        self.ida_proxy = self.cc.ida_proxy
         self.winapi = self.parent.winapi_provider
         self.old_keyword_initial = ""
         self.winapi.registerDataReceiver(self.populateBrowserWindow)
@@ -89,9 +88,9 @@ class WinApiWidget(QtGui.QWidget):
         self._createSearchButton()
         self._createBrowserWindow()
 
-        winapi_layout = QtGui.QVBoxLayout()
-        selection_widget = QtGui.QWidget()
-        selection_layout = QtGui.QHBoxLayout()
+        winapi_layout = self.cc.QVBoxLayout()
+        selection_widget = self.cc.QWidget()
+        selection_layout = self.cc.QHBoxLayout()
         selection_layout.addWidget(self.online_button)
         selection_layout.addWidget(self.back_button)
         selection_layout.addWidget(self.next_button)
@@ -106,7 +105,7 @@ class WinApiWidget(QtGui.QWidget):
         """
         Create a back button to allow easier browsing
         """
-        self.back_button = QtGui.QPushButton(self.back_icon, "", self)
+        self.back_button = self.cc.QPushButton(self.back_icon, "", self)
         self.back_button.setToolTip("Go back to previously accessed content.")
         self.back_button.resize(self.back_button.sizeHint())
         self.back_button.setEnabled(False)
@@ -116,7 +115,7 @@ class WinApiWidget(QtGui.QWidget):
         """
         Create a next button to allow easier browsing
         """
-        self.next_button = QtGui.QPushButton(self.forward_icon, "", self)
+        self.next_button = self.cc.QPushButton(self.forward_icon, "", self)
         self.next_button.setToolTip("Go forward to previously accessed content.")
         self.next_button.resize(self.next_button.sizeHint())
         self.next_button.setEnabled(False)
@@ -126,10 +125,10 @@ class WinApiWidget(QtGui.QWidget):
         """
         Create a next button to allow easier browsing
         """
-        self.online_button = QtGui.QPushButton(self.online_icon, "", self)
+        self.online_button = self.cc.QPushButton(self.online_icon, "", self)
         self.online_button.setCheckable(True)
         if self.winapi.hasOnlineMsdnAvailable():
-            self.online_button.setChecked(QtCore.Qt.Checked)
+            self.online_button.setChecked(self.cc.QtCore.Qt.Checked)
         self.online_button.setToolTip("Enable/disable MSDN online lookup.")
         self.online_button.resize(self.online_button.sizeHint())
         self.online_button.clicked.connect(self._onOnlineButtonClicked)
@@ -139,14 +138,14 @@ class WinApiWidget(QtGui.QWidget):
         Create the I{QLineEdit }used for selecting API names. This includes a QCompleter to make suggestions based on
         the keyword database.
         """
-        self.api_chooser_lineedit = QLineEdit()
+        self.api_chooser_lineedit = self.cc.QLineEdit()
         self.api_chooser_lineedit.returnPressed.connect(self.populateBrowserWindow)
         self.api_chooser_lineedit.textChanged.connect(self._updateCompleterModel)
 
-        completer = QCompleter()
-        completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        completer.setModelSorting(QCompleter.CaseSensitivelySortedModel)
-        self.completer_model = QStringListModel([])
+        completer = self.cc.QCompleter()
+        completer.setCaseSensitivity(self.cc.QtCore.Qt.CaseInsensitive)
+        completer.setModelSorting(self.cc.QCompleter.CaseSensitivelySortedModel)
+        self.completer_model = self.cc.QStringListModel([])
         completer.setModel(self.completer_model)
         self.api_chooser_lineedit.setCompleter(completer)
 
@@ -154,7 +153,7 @@ class WinApiWidget(QtGui.QWidget):
         """
         Create a search button besides the QLineEdit.
         """
-        self.search_button = QtGui.QPushButton(self.search_icon, "", self)
+        self.search_button =  self.cc.QPushButton(self.search_icon, "", self)
         self.search_button.setToolTip("Search for the chosen API name, structure or whatever WinAPI documentation " \
             + "might have for you.")
         self.search_button.resize(self.search_button.sizeHint())
@@ -165,7 +164,7 @@ class WinApiWidget(QtGui.QWidget):
         Create the browser window with a I{QTextBrowser}. This display component is chosen over I{QWebView} because
         WebKit is not included in the standard PySide installation as distributed with IDA Pro.
         """
-        self.browser_window = QTextBrowser()
+        self.browser_window =  self.cc.QTextBrowser()
         self.browser_window.anchorClicked.connect(self._browserAnchorClicked)
 
     def _updateCompleterModel(self):
@@ -255,7 +254,7 @@ class WinApiWidget(QtGui.QWidget):
         A function exposed to allow navigating the widget to the currently highlighted identifier from the IDA view.
         """
         if self.winapi.hasOfflineMsdnAvailable():
-            highlighted_identifier = Misc.cleanCountingSuffix(self.ida_proxy.get_highlighted_identifier())
+            highlighted_identifier = self.cc.Misc.cleanCountingSuffix(self.ida_proxy.get_highlighted_identifier())
             highlighted_identifier = self.parent.semantic_identifier.lookupDisplayApiName(highlighted_identifier)
             self.navigate(highlighted_identifier)
             self.parent.setTabFocus(self.name)
@@ -267,3 +266,4 @@ class WinApiWidget(QtGui.QWidget):
         """
         self.back_button.setEnabled(self.winapi.hasBackwardHistory())
         self.next_button.setEnabled(self.winapi.hasForwardHistory())
+

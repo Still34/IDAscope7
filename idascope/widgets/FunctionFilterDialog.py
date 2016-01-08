@@ -24,13 +24,15 @@
 #
 ########################################################################
 
-from PySide import QtGui
+import idascope.core.helpers.QtShim as QtShim
+QDialog = QtShim.get_QDialog()
 
 
-class FunctionFilterDialog(QtGui.QDialog):
+class FunctionFilterDialog(QDialog):
 
-    def __init__(self, context_filter, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+    def __init__(self, parent, context_filter):
+        self.cc = parent.cc
+        self.cc.QDialog.__init__(self, parent)
         self.context_filter = context_filter
         # create GUI elements
         self._createGroupingModeBox()
@@ -41,7 +43,7 @@ class FunctionFilterDialog(QtGui.QDialog):
         self._createDecisionWidget()
         self._createButtons()
         # glue everything together
-        dialog_layout = QtGui.QVBoxLayout()
+        dialog_layout = self.cc.QVBoxLayout()
         dialog_layout.addWidget(self.decision_widget)
         dialog_layout.addLayout(self.button_layout)
         self.setLayout(dialog_layout)
@@ -49,20 +51,20 @@ class FunctionFilterDialog(QtGui.QDialog):
         self._updateGroupingModeDisplay()
 
     def _createGroupingModeBox(self):
-        self.grouping_mode_box = QtGui.QGroupBox("Display granularity")
-        self.grouping_mode_all = QtGui.QRadioButton("Show all")
+        self.grouping_mode_box = self.cc.QGroupBox("Display granularity")
+        self.grouping_mode_all = self.cc.QRadioButton("Show all")
         self.grouping_mode_all.clicked.connect(self._updateGroupingModeDisplay)
         if self.context_filter.display_all:
             self.grouping_mode_all.setChecked(True)
-        self.grouping_mode_tags = QtGui.QRadioButton("Show individual tags")
+        self.grouping_mode_tags = self.cc.QRadioButton("Show individual tags")
         self.grouping_mode_tags.clicked.connect(self._updateGroupingModeDisplay)
         if self.context_filter.display_tags:
             self.grouping_mode_tags.setChecked(True)
-        self.grouping_mode_grouped = QtGui.QRadioButton("Group by semantics")
+        self.grouping_mode_grouped = self.cc.QRadioButton("Group by semantics")
         self.grouping_mode_grouped.clicked.connect(self._updateGroupingModeDisplay)
         if self.context_filter.display_groups:
             self.grouping_mode_grouped.setChecked(True)
-        self.grouping_mode_hbox = QtGui.QHBoxLayout()
+        self.grouping_mode_hbox = self.cc.QHBoxLayout()
         self.grouping_mode_hbox.addWidget(self.grouping_mode_all)
         self.grouping_mode_hbox.addWidget(self.grouping_mode_tags)
         self.grouping_mode_hbox.addWidget(self.grouping_mode_grouped)
@@ -71,24 +73,24 @@ class FunctionFilterDialog(QtGui.QDialog):
 
     def _createTagsBox(self):
         height_split = 6
-        self.tags_box = QtGui.QGroupBox("Display Tags")
-        self.tags_hbox = QtGui.QHBoxLayout()
+        self.tags_box = self.cc.QGroupBox("Display Tags")
+        self.tags_hbox = self.cc.QHBoxLayout()
         self.tags_map = {}
-        current_col_vbox = QtGui.QVBoxLayout()
+        current_col_vbox = self.cc.QVBoxLayout()
         for index, tag in enumerate(self.context_filter.tags):
-            tags_cb = QtGui.QCheckBox(tag[2])
+            tags_cb = self.cc.QCheckBox(tag[2])
             self.tags_map[tags_cb] = tag
             if tag in self.context_filter.enabled_tags:
                 tags_cb.setChecked(True)
             if index > 0 and index % height_split == 0:
-                vbox_widget = QtGui.QWidget()
+                vbox_widget = self.cc.QWidget()
                 vbox_widget.setLayout(current_col_vbox)
                 self.tags_hbox.addWidget(vbox_widget)
-                current_col_vbox = QtGui.QVBoxLayout()
+                current_col_vbox = self.cc.QVBoxLayout()
             if index == (len(self.context_filter.tags) - 1):
                 current_col_vbox.addWidget(tags_cb)
                 current_col_vbox.addStretch(1)
-                vbox_widget = QtGui.QWidget()
+                vbox_widget = self.cc.QWidget()
                 vbox_widget.setLayout(current_col_vbox)
                 self.tags_hbox.addWidget(vbox_widget)
             else:
@@ -97,11 +99,11 @@ class FunctionFilterDialog(QtGui.QDialog):
         self.tags_box.setLayout(self.tags_hbox)
 
     def _createGroupsBox(self):
-        self.groups_box = QtGui.QGroupBox("Display Groups")
-        self.groups_vbox = QtGui.QVBoxLayout()
+        self.groups_box = self.cc.QGroupBox("Display Groups")
+        self.groups_vbox = self.cc.QVBoxLayout()
         self.groups_map = {}
         for group in self.context_filter.groups:
-            groups_cb = QtGui.QCheckBox(group[2])
+            groups_cb = self.cc.QCheckBox(group[2])
             self.groups_map[groups_cb] = group
             if group in self.context_filter.enabled_groups:
                 groups_cb.setChecked(True)
@@ -110,19 +112,19 @@ class FunctionFilterDialog(QtGui.QDialog):
         self.groups_box.setLayout(self.groups_vbox)
 
     def _createGroupsTagsWidget(self):
-        self.groups_tags_widget = QtGui.QWidget()
-        self.groups_tags_hbox = QtGui.QHBoxLayout()
+        self.groups_tags_widget = self.cc.QWidget()
+        self.groups_tags_hbox = self.cc.QHBoxLayout()
         self.groups_tags_hbox.addWidget(self.tags_box)
         self.groups_tags_hbox.addWidget(self.groups_box)
         self.groups_tags_hbox.addStretch(1)
         self.groups_tags_widget.setLayout(self.groups_tags_hbox)
 
     def _createAdditionalsBox(self):
-        self.additionals_box = QtGui.QGroupBox("Additional Information")
-        self.additionals_vbox = QtGui.QVBoxLayout()
+        self.additionals_box = self.cc.QGroupBox("Additional Information")
+        self.additionals_vbox = self.cc.QVBoxLayout()
         self.additionals_map = {}
         for additional in self.context_filter.additionals:
-            additional_cb = QtGui.QCheckBox(additional[2])
+            additional_cb = self.cc.QCheckBox(additional[2])
             self.additionals_map[additional_cb] = additional
             if additional in self.context_filter.enabled_additionals:
                 additional_cb.setChecked(True)
@@ -131,17 +133,17 @@ class FunctionFilterDialog(QtGui.QDialog):
         self.additionals_box.setLayout(self.additionals_vbox)
 
     def _createDecisionWidget(self):
-        self.decision_widget = QtGui.QWidget()
-        self.decision_layout = QtGui.QVBoxLayout()
+        self.decision_widget = self.cc.QWidget()
+        self.decision_layout = self.cc.QVBoxLayout()
         self.decision_layout.addWidget(self.grouping_mode_box)
         self.decision_layout.addWidget(self.groups_tags_widget)
         self.decision_layout.addWidget(self.additionals_box)
         self.decision_widget.setLayout(self.decision_layout)
 
     def _createButtons(self):
-        self.button_layout = QtGui.QHBoxLayout()
-        self.ok_button = QtGui.QPushButton(self.tr("OK"))
-        self.cancel_button = QtGui.QPushButton(self.tr("Cancel"))
+        self.button_layout = self.cc.QHBoxLayout()
+        self.ok_button = self.cc.QPushButton(self.tr("OK"))
+        self.cancel_button = self.cc.QPushButton(self.tr("Cancel"))
         self.ok_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
         self.button_layout.addStretch(1)

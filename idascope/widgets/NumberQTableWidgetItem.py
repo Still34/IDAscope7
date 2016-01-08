@@ -24,10 +24,11 @@
 #
 ########################################################################
 
-from PySide import QtGui
+import idascope.core.helpers.QtShim as QtShim
+QTableWidgetItem = QtShim.get_QTableWidgetItem()
 
 
-class NumberQTableWidgetItem(QtGui.QTableWidgetItem):
+class NumberQTableWidgetItem(QTableWidgetItem):
     """
     A simple helper class that allows sorting by numeric values.
     """

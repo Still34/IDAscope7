@@ -26,18 +26,19 @@
 #  along with this program.  If not, see
 #  <http://www.gnu.org/licenses/>.
 #
-########################################################################
+#######################################################################
 
-from PySide import QtCore
-# from PySide.QtCore import QThread
 import httplib
 
-import idascope.core.helpers.ThreadedDownloader
+import idascope.core.helpers.QtShim as QtShim
+QtGui = QtShim.get_QtGui()
+QtCore = QtShim.get_QtCore()
+Signal = QtShim.get_Signal()
 
 
 class ThreadedDownloader(QtCore.QObject):
 
-    threadFinished = QtCore.Signal()
+    threadFinished = Signal()
 
     def __init__(self, url):
         super(ThreadedDownloader, self).__init__()

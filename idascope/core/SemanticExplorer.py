@@ -28,16 +28,6 @@
 #   finding and renaming potential wrapper functions.
 ########################################################################
 
-import json
-import os
-import re
-import time
-from collections import deque
-
-from IdaProxy import IdaProxy
-from helpers.ApiMatcher import ApiMatcher
-from helpers.ControlFlowBuilder import ControlFlowBuilder
-
 
 class SemanticExplorer():
     """
@@ -45,30 +35,27 @@ class SemanticExplorer():
     are identified and used for creating context and allowing tagging of them.
     """
 
-    def __init__(self, idascope_config):
+    def __init__(self, parent):
         print ("[|] loading SemanticExplorer")
-        self.os = os
-        self.re = re
-        self.time = time
-        self.ida_proxy = IdaProxy()
-        self.idascope_config = idascope_config
+        self.parent = parent
+        self.cc = parent.cc
+        self.ida_proxy = self.cc.ida_proxy
+        self.idascope_config = parent.config
         self.semantic_matches = []
-        # real
-        self.deque = deque
         self.semantic_signatures = self.load_json(self.idascope_config.smtx_semantics_file)
         self.enums = self.load_json(self.idascope_config.smtx_enum_file)
 
         self.target_apis = self._collectSemanticApis(self.semantic_signatures)
         self.start_apis = self._collectStartApis(self.semantic_signatures)
-        self.api_matcher = ApiMatcher(self.target_apis, self.enums, self.idascope_config)
+        self.api_matcher = self.cc.ApiMatcher(self, self.target_apis, self.enums, self.idascope_config)
 
     def _loadDemoStub(self, idascope_config):
         """
         Load cached semantics for development
         """
-        demo_path = os.sep.join([idascope_config.root_file_path, "idascope", "data", "semantic_explorer", "example_result.json"])
+        demo_path = self.cc.os.sep.join([idascope_config.root_file_path, "idascope", "data", "semantic_explorer", "example_result.json"])
         with open(demo_path, "r") as f_stub:
-            results = json.loads(f_stub.read())
+            results = self.cc.json.loads(f_stub.read())
         return results
 
     def _analyzeDemo(self):
@@ -107,10 +94,10 @@ class SemanticExplorer():
     def load_json(self, json_file):
         print "  loading json file: ", json_file
         loaded_dictionary = {}
-        if self.os.path.isfile(json_file):
+        if self.cc.os.path.isfile(json_file):
             with open(json_file) as inf:
                 content = inf.read()
-                loaded_dictionary = json.loads(content)
+                loaded_dictionary = self.cc.json.loads(content)
         else:
             Warning("Can't find file: %s!" % json_file)
         return loaded_dictionary
@@ -133,20 +120,20 @@ class SemanticExplorer():
     def analyze(self):
         # self._analyzeDemo()
         # return self.semantic_matches
-        time_before = self.time.time()
+        time_before = self.cc.time.time()
         print "\n  Building data structures..."
         self.buildDataStructure()
-        print "  completed after %3.2f seconds.\n" % (self.time.time() - time_before)
+        print "  completed after %3.2f seconds.\n" % (self.cc.time.time() - time_before)
 
         print "\n   Matching Semantics..."
         self.semantic_matches = self.matchAll()
-        print ("\n  Full analysis completed in %3.2f seconds.\n" % (self.time.time() - time_before))
+        print ("\n  Full analysis completed in %3.2f seconds.\n" % (self.cc.time.time() - time_before))
         return self.semantic_matches
 
     def buildDataStructure(self):
         self.func_blocks, self.func_calls, \
         self.block_calls, self.successors, self.predecessors, \
-        self.semanticRefs = ControlFlowBuilder(self.target_apis, self.start_apis).build()
+        self.semanticRefs = self.cc.ControlFlowBuilder(self, self.target_apis, self.start_apis).build()
 
     def matchAll(self):
         results = []
@@ -180,10 +167,10 @@ class SemanticExplorer():
 
     def _match(self, start, semantic_sequence):
         match = []
-        semantic = self.deque(semantic_sequence)
+        semantic = self.cc.deque(semantic_sequence)
         api, parameters = semantic.popleft()
 
-        next_blocks = self.deque([start])
+        next_blocks = self.cc.deque([start])
         visited = []
 
         while next_blocks:

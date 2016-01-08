@@ -6,7 +6,7 @@ configuration = {
     "plugin_only": False,
     "debug": False,
     "paths": {
-        # "idascope_root_dir": "C:\\Program Files\\IDA 6.3\\plugins",
+        # "idascope_root_dir": "C:\\Program Files\\IDA 6.9\\plugins",
         "idascope_root_dir": "",
         "inspection_tags_file": "idascope\\data\\inspection_tags.json",
         "inspection_profiles_folder": "idascope\\data\\inspection_profiles",

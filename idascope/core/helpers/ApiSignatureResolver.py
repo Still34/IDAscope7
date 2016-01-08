@@ -24,16 +24,13 @@
 #
 ########################################################################
 
-import re
-
-from idascope.core.IdaProxy import IdaProxy
-
 
 class ApiSignatureResolver():
 
-    def __init__(self, semanticTargetApis):
-        self.ida_proxy = IdaProxy()
-        self.re = re
+    def __init__(self, parent, semanticTargetApis):
+        self.parent = parent
+        self.cc = parent.cc
+        self.ida_proxy = self.cc.ida_proxy
         self.semanticTargetApis = semanticTargetApis
 
     def getApiSignature(self, api_name):
@@ -49,7 +46,7 @@ class ApiSignatureResolver():
         api_location = self.ida_proxy.LocByName(api_name)
         type_def = self.ida_proxy.GetType(api_location)
         function_signature_regex = r"(?P<return_type>[\w\s\*]+)\((?P<parameters>[,\.\*\w\s]*)\)"
-        result = self.re.match(function_signature_regex, type_def)
+        result = self.cc.re.match(function_signature_regex, type_def)
         if result is not None:
             api_signature["return_type"] = result.group("return_type")
             if len(result.group("parameters")) > 0:

@@ -28,19 +28,15 @@
 # https://bitbucket.org/Alexander_Hanel/backtrace
 ########################################################################
 
-import re
-from ApiSignatureResolver import ApiSignatureResolver
-
-from idascope.core.IdaProxy import IdaProxy
-
 
 class ApiManager():
 
-    def __init__(self, targetSemanticApis):
-        self.re = re
-        self.ida_proxy = IdaProxy()
+    def __init__(self, parent, targetSemanticApis):
+        self.parent = parent
+        self.cc = parent.cc
+        self.ida_proxy = self.cc.ida_proxy
         self.target_apis = targetSemanticApis
-        self.signatures = ApiSignatureResolver(self.target_apis)
+        self.signatures = self.cc.ApiSignatureResolver(self, self.target_apis)
         self.registers = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi', 'esp', 'ebp']
         self.nonMov = True
         self.tainted = False
@@ -387,3 +383,4 @@ class ApiManager():
     def _getForwardedCall(self, xrefs):
         sub_call = xrefs[0]
         return self.ida_proxy.Name(sub_call)
+

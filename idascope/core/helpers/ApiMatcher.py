@@ -24,18 +24,16 @@
 #
 ########################################################################
 
-from ApiManager import ApiManager
-from ApiSignatureResolver import ApiSignatureResolver
-
-from idascope.core.IdaProxy import IdaProxy
-
 
 class ApiMatcher():
-    def __init__(self, target_apis, enums, config):
-        self.signatures = ApiSignatureResolver(target_apis)
+    def __init__(self, parent, target_apis, enums, config):
+        self.parent = parent
+        self.cc = parent.cc
+        self.signatures = self.cc.ApiSignatureResolver(self, target_apis)
+        self.ida_proxy = self.cc.ida_proxy
         self.target_apis = target_apis
         self.enums = enums
-        self.api_data = ApiManager(self.target_apis)
+        self.api_data = self.cc.ApiManager(self, self.target_apis)
         self.config = config
 
     def _hasTargetParameters(self, target_parameters):
@@ -51,7 +49,7 @@ class ApiMatcher():
         return self.signatures.getAllSignatures()
 
     def getName(self, address, arg_position, arg_list):
-        addr_comment = IdaProxy().Comment(address)
+        addr_comment =  self.ida_proxy.Comment(address)
         arg_type = [arg['type'] for arg in arg_list if addr_comment == arg['name'] or '*%s' % addr_comment == arg['name']]
         if not arg_type:
             return arg_list[arg_position]['name']
@@ -157,3 +155,4 @@ class ApiMatcher():
                 print "SemanticExplorer._matchAPIs - apiOfSequence: %s" % apiOfSequence.encode("hex")
             return False
         return apiOfSemantic in apiOfSequence
+

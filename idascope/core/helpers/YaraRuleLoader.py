@@ -35,6 +35,8 @@ class YaraRuleLoader(object):
 
     def __init__(self):
         """ init Yara Rule Loader Object """
+        self.YaraRule = YaraRule
+        self.StatusController =  StatusController
         self.statusController = StatusController()
 
     def loadRulesFromFile(self, filename):
@@ -138,7 +140,7 @@ class YaraRuleLoader(object):
         # result, list of Yara rules
         yara_rules = []
         # sections of current Yara rule
-        current_rule = YaraRule()
+        current_rule = self.YaraRule(self)
         # status ("", "header", "meta", "strings", "condition"), file starts in Yara rule header, so status is "header"
         self.statusController.reset("header")
         # list of characters, one of them must stand in front of every section keyword
@@ -194,7 +196,7 @@ class YaraRuleLoader(object):
                 # analyze Yara rule
                 current_rule.filename = filename
                 current_rule.analyze()
-                current_rule = YaraRule()
+                current_rule = self.YaraRule(self)
 
         # return list of Yara rules
         return yara_rules

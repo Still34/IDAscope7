@@ -26,14 +26,15 @@
 #
 ########################################################################
 
-from YaraStatusController import StatusController
+# from YaraStatusController import StatusController
 
 
 class YaraRule(object):
     """ Yara Rule class """
 
-    def __init__(self):
-        self.statusController = StatusController()
+    def __init__(self, parent):
+        self.parent = parent
+        self.statusController = parent.StatusController()
         self.filename = ""
         # set raw data of rule content, to be parsed by analyze* methods
         self.raw_header = ""

@@ -44,6 +44,7 @@ from IdaProxy import IdaProxy
 import idascope.core.helpers.Misc as Misc
 from idascope.core.helpers.YaraRuleLoader import YaraRuleLoader
 from idascope.core.helpers.YaraRule import YaraRule
+from idascope.core.helpers.YaraStatusController import StatusController
 
 
 class YaraScanner():
@@ -56,8 +57,11 @@ class YaraScanner():
         print ("[|] loading YaraScanner")
         self.os = os
         self.re = re
+        self.traceback = traceback
         self.time = time
         self.yara = yara
+        self.Misc = Misc
+        self.StatusController = StatusController
         self.YaraRule = YaraRule
         self.ida_proxy = IdaProxy()
         self.yrl = YaraRuleLoader()
@@ -82,12 +86,12 @@ class YaraScanner():
             self._load_recursive(yara_path)
 
     def _load_recursive(self, yara_path):
-        if os.path.isfile(yara_path):
+        if self.os.path.isfile(yara_path):
             self._load_file(yara_path)
-        elif os.path.isdir(yara_path):
-            for dirpath, dirnames, filenames in os.walk(yara_path):
+        elif self.os.path.isdir(yara_path):
+            for dirpath, dirnames, filenames in self.os.walk(yara_path):
                 for filename in sorted(filenames):
-                    filepath = dirpath + os.sep + filename
+                    filepath = dirpath + self.os.sep + filename
                     self._load_file(filepath)
 
     def _load_file(self, filepath):
@@ -96,7 +100,7 @@ class YaraScanner():
             for rule in rules_from_file:
                 rule.checkRule()
             self._yara_rules.extend(rules_from_file)
-            rules = yara.compile(filepath)
+            rules = self.yara.compile(filepath)
             self._compiled_rules.append(rules)
             print "loading rules from file: %s (%d)" % (filepath, len(rules_from_file))
             if rules:
@@ -104,7 +108,7 @@ class YaraScanner():
         except Exception as exc:
             print "[!] Could not load yara rules from file: %s --- Exception: " % filepath
             print ">" * 60
-            print traceback.format_exc(exc)
+            print self.traceback.format_exc(exc)
             print "<" * 60
 
     def scan(self):
@@ -128,7 +132,7 @@ class YaraScanner():
         start_len = 0
         for start in segment_starts:
             end = self.ida_proxy.SegEnd(start)
-            for ea in Misc.lrange(start, end):
+            for ea in self.Misc.lrange(start, end):
                 result += chr(self.ida_proxy.Byte(ea))
             offsets.append((start, start_len, len(result)))
             start_len = len(result)

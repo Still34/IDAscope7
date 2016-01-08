@@ -24,32 +24,30 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QIcon
+import idascope.core.helpers.QtShim as QtShim
+QMainWindow = QtShim.get_QMainWindow()
 
 from NumberQTableWidgetItem import NumberQTableWidgetItem
 from YaraRuleDialog import YaraRuleDialog
 
 
-class YaraScannerWidget(QtGui.QMainWindow):
+class YaraScannerWidget(QMainWindow):
 
     def __init__(self, parent):
-        QtGui.QMainWindow.__init__(self)
+        self.cc = parent.cc
+        self.cc.QMainWindow.__init__(self)
         print "[|] loading YaraScannerWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
         self.name = "YARA"
-        self.icon = QIcon(self.parent.config.icon_file_path + "yarascan.png")
+        self.icon = self.cc.QIcon(self.parent.config.icon_file_path + "yarascan.png")
         # This widget relies on yara scanner for resuls and scanning as well as IdaProxy for navigation
         self.ys = self.parent.yara_scanner
-        self.ip = self.parent.ida_proxy
-        # references to Qt-specific modules
-        self.QtGui = QtGui
-        self.QtCore = QtCore
+        self.ida_proxy = self.cc.ida_proxy
         self.NumberQTableWidgetItem = NumberQTableWidgetItem
         self.YaraRuleDialog = YaraRuleDialog
 
-        self.central_widget = self.QtGui.QWidget()
+        self.central_widget = self.cc.QWidget()
         self.setCentralWidget(self.central_widget)
         self._createGui()
         self._selected_rule = None
@@ -66,9 +64,9 @@ class YaraScannerWidget(QtGui.QMainWindow):
         # Details for a selected rule
         self._createResultWidget()
         # layout and fill the widget
-        yara_layout = QtGui.QVBoxLayout()
-        splitter = self.QtGui.QSplitter(self.QtCore.Qt.Vertical)
-        q_clean_style = QtGui.QStyleFactory.create('Plastique')
+        yara_layout = self.cc.QVBoxLayout()
+        splitter = self.cc.QSplitter(self.cc.QtCore.Qt.Vertical)
+        q_clean_style = self.cc.QStyleFactory.create('Plastique')
         splitter.setStyle(q_clean_style)
         splitter.addWidget(self.rules_widget)
         splitter.addWidget(self.result_widget)
@@ -88,7 +86,7 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create an action for the scan button of the toolbar and connect it.
         """
-        self.loadAndScanAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "search.png"), \
+        self.loadAndScanAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "search.png"),
             "(Re)load YARA Signature files and scan", self)
         self.loadAndScanAction.triggered.connect(self._onLoadAndScanButtonClicked)
 
@@ -109,14 +107,14 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create the widget for the arithmetic/logic heuristic.
         """
-        self.rules_widget = QtGui.QWidget()
-        rules_layout = QtGui.QVBoxLayout()
-        self.rules_label = self.QtGui.QLabel()
+        self.rules_widget = self.cc.QWidget()
+        rules_layout = self.cc.QVBoxLayout()
+        self.rules_label = self.cc.QLabel()
         self.setRulesLabel(0, 0)
 
         # rule visualization
-        self.rules_widget = QtGui.QWidget()
-        rules_layout = QtGui.QVBoxLayout()
+        self.rules_widget = self.cc.QWidget()
+        rules_layout = self.cc.QVBoxLayout()
         self._createRuleTable()
 
         # widget composition
@@ -131,7 +129,7 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create the result table for displaying results yara scanning
         """
-        self.rules_table = QtGui.QTableWidget()
+        self.rules_table = self.cc.QTableWidget()
         self.populateRulesTable()
         self.rules_table.clicked.connect(self._onRuleClicked)
 
@@ -157,19 +155,20 @@ class YaraScannerWidget(QtGui.QMainWindow):
         for row, data_item in enumerate(table_data):
             for column, column_name in enumerate(self.rules_table_header_labels):
                 tmp_item = self._getRuleTableItem(data_item, column)
-                tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
-                tmp_item.setTextAlignment(self.QtCore.Qt.AlignRight)
+                tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
+                tmp_item.setTextAlignment(self.cc.QtCore.Qt.AlignRight)
                 self.rules_table.setItem(row, column, tmp_item)
             self.rules_table.resizeRowToContents(row)
 
-        self.rules_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+        self.rules_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
         # size work around according to: https://stackoverflow.com/a/3445485
         self.rules_table.setVisible(False)
         self.rules_table.resizeColumnsToContents()
         self.rules_table.setVisible(True)
         # sorting
         self.rules_table.setSortingEnabled(True)
-        self.rules_table.sortByColumn(2, QtCore.Qt.SortOrder.DescendingOrder)
+        # QtCore.Qt.SortOrder.DescendingOrder (== 1) broken in Qt5?!
+        self.rules_table.sortByColumn(2, self.cc.DescendingOrder)
 
         if len(rule_results) > 0:
             self._selected_rule = rule_results[0]
@@ -207,9 +206,9 @@ class YaraScannerWidget(QtGui.QMainWindow):
         @type column_index: int
         @return: the prepared item
         """
-        tmp_item = self.QtGui.QTableWidgetItem()
+        tmp_item = self.cc.QTableWidgetItem()
         if column_index == 0:
-            tmp_item = self.QtGui.QTableWidgetItem(data_item["name"])
+            tmp_item = self.cc.QTableWidgetItem(data_item["name"])
         elif column_index == 1:
             tmp_item = self.NumberQTableWidgetItem("%d" % data_item["num_matched_strings"])
         elif column_index == 2:
@@ -219,13 +218,13 @@ class YaraScannerWidget(QtGui.QMainWindow):
             else:
                 tmp_item = self.NumberQTableWidgetItem("0")
         elif column_index == 3:
-            tmp_item = self.QtGui.QTableWidgetItem(data_item["match"])
+            tmp_item = self.cc.QTableWidgetItem(data_item["match"])
         if data_item["match"] == "True":
-            tmp_item.setBackground(self.QtGui.QBrush(self.QtGui.QColor(0xCC0000)))
+            tmp_item.setBackground(self.cc.QBrush(self.cc.QColor(0xCC0000)))
         elif data_item["match"] == "False" and data_item["num_matched_strings"] > 0:
-            tmp_item.setBackground(self.QtGui.QBrush(self.QtGui.QColor(0xFFBB00)))
+            tmp_item.setBackground(self.cc.QBrush(self.cc.QColor(0xFFBB00)))
         else:
-            tmp_item.setBackground(self.QtGui.QBrush(self.QtGui.QColor(0x22CC00)))
+            tmp_item.setBackground(self.cc.QBrush(self.cc.QColor(0x22CC00)))
         return tmp_item
 
     def _onRuleClicked(self, mi):
@@ -247,21 +246,21 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create the widget for the arithmetic/logic heuristic.
         """
-        self.result_widget = QtGui.QWidget()
-        result_layout = QtGui.QVBoxLayout()
+        self.result_widget = self.cc.QWidget()
+        result_layout = self.cc.QVBoxLayout()
         num_hits = 0
         num_strings = 0
-        self.result_label = QtGui.QLabel("%d out of %d strings matched" % (num_hits, num_strings))
-        self.rule_display_icon = QIcon(self.parent.config.icon_file_path + "winapi.png")
+        self.result_label = self.cc.QLabel("%d out of %d strings matched" % (num_hits, num_strings))
+        self.rule_display_icon = self.cc.QIcon(self.parent.config.icon_file_path + "winapi.png")
 
         # rule visualization
-        self.result_widget = QtGui.QWidget()
-        result_layout = QtGui.QVBoxLayout()
+        self.result_widget = self.cc.QWidget()
+        result_layout = self.cc.QVBoxLayout()
         self._createResultTable()
         self._createResultInfoButton()
 
-        self.result_info_widget = QtGui.QWidget()
-        result_info_layout = QtGui.QHBoxLayout()
+        self.result_info_widget = self.cc.QWidget()
+        result_info_layout = self.cc.QHBoxLayout()
         result_info_layout.addWidget(self.result_info_button)
         result_info_layout.addWidget(self.result_label)
         result_info_layout.addStretch(1)
@@ -276,7 +275,7 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create a back button to allow easier browsing
         """
-        self.result_info_button = QtGui.QPushButton(self.rule_display_icon, "", self)
+        self.result_info_button = self.cc.QPushButton(self.rule_display_icon, "", self)
         self.result_info_button.setToolTip("Show full rule")
         self.result_info_button.resize(self.result_info_button.sizeHint())
         self.result_info_button.setEnabled(True)
@@ -286,7 +285,7 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         Create the result table for displaying results yara scanning
         """
-        self.result_table = QtGui.QTableWidget()
+        self.result_table = self.cc.QTableWidget()
         self.populateResultTable(None)
         self.result_table.doubleClicked.connect(self._onResultDoubleClicked)
 
@@ -322,12 +321,12 @@ class YaraScannerWidget(QtGui.QMainWindow):
         for row, data_item in enumerate(table_data):
             for column, column_name in enumerate(self.result_table_header_labels):
                 tmp_item = self._getResultTableItem(data_item, column)
-                tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
-                tmp_item.setTextAlignment(self.QtCore.Qt.AlignRight)
+                tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
+                tmp_item.setTextAlignment(self.cc.QtCore.Qt.AlignRight)
                 self.result_table.setItem(row, column, tmp_item)
             self.result_table.resizeRowToContents(row)
 
-        self.result_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+        self.result_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
         self.result_table.resizeColumnsToContents()
         self.result_table.setSortingEnabled(True)
 
@@ -366,20 +365,20 @@ class YaraScannerWidget(QtGui.QMainWindow):
         @type column_index: int
         @return: the prepared item
         """
-        tmp_item = self.QtGui.QTableWidgetItem()
+        tmp_item = self.cc.QTableWidgetItem()
         if column_index == 0:
             if data_item[0]:
-                tmp_item = self.QtGui.QTableWidgetItem("0x%x" % data_item[1])
+                tmp_item = self.cc.QTableWidgetItem("0x%x" % data_item[1])
             else:
-                tmp_item = self.QtGui.QTableWidgetItem("%s" % data_item[1])
+                tmp_item = self.cc.QTableWidgetItem("%s" % data_item[1])
         elif column_index == 1:
-            tmp_item = self.QtGui.QTableWidgetItem("%s" % data_item[2])
+            tmp_item = self.cc.QTableWidgetItem("%s" % data_item[2])
         elif column_index == 2:
-            tmp_item = self.QtGui.QTableWidgetItem("%s" % data_item[3])
+            tmp_item = self.cc.QTableWidgetItem("%s" % data_item[3])
         if data_item[0]:
-            tmp_item.setBackground(self.QtGui.QBrush(self.QtGui.QColor(0xCC0000)))
+            tmp_item.setBackground(self.cc.QBrush(self.cc.QColor(0xCC0000)))
         else:
-            tmp_item.setBackground(self.QtGui.QBrush(self.QtGui.QColor(0x22CC00)))
+            tmp_item.setBackground(self.cc.QBrush(self.cc.QColor(0x22CC00)))
         return tmp_item
 
     def _onResultDoubleClicked(self, mi):
@@ -389,10 +388,10 @@ class YaraScannerWidget(QtGui.QMainWindow):
         """
         clicked_address = self.result_table.item(mi.row(), 0).text()
         try:
-            self.ip.Jump(int(clicked_address, 16))
+            self.ida_proxy.Jump(int(clicked_address, 16))
         except ValueError:
             pass
 
     def _onResultInfoButtonClicked(self):
-        dialog = self.YaraRuleDialog(self._selected_rule)
+        dialog = self.YaraRuleDialog(self, self._selected_rule)
         dialog.exec_()

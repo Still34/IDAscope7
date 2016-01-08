@@ -29,9 +29,12 @@
 ########################################################################
 
 # TODO: Make this finally multi-threaded.
-
-from PySide import QtCore
 import httplib
+
+import idascope.core.helpers.QtShim as QtShim
+QtGui = QtShim.get_QtGui()
+QtCore = QtShim.get_QtCore()
+Signal = QtShim.get_Signal()
 
 from ThreadedDownloader import ThreadedDownloader
 
@@ -53,7 +56,7 @@ class Downloader(QtCore.QObject):
     A class to download web content. Works both blocking and non-blocking (threaded with callback).
     """
 
-    downloadFinished = QtCore.Signal()
+    downloadFinished = Signal()
 
     def __init__(self):
         super(Downloader, self).__init__()

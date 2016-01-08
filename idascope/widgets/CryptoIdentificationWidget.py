@@ -24,31 +24,29 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QIcon
+import idascope.core.helpers.QtShim as QtShim
+QMainWindow = QtShim.get_QMainWindow()
 
 from NumberQTableWidgetItem import NumberQTableWidgetItem
 from BoundsEditor import BoundsEditor
 
 
-class CryptoIdentificationWidget(QtGui.QMainWindow):
+class CryptoIdentificationWidget(QMainWindow):
 
     def __init__(self, parent):
-        QtGui.QMainWindow.__init__(self)
+        self.cc = parent.cc
+        self.cc.QMainWindow.__init__(self)
         print "[|] loading CryptoIdentificationWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
         self.name = "Crypto"
-        self.icon = QIcon(self.parent.config.icon_file_path + "crypto.png")
+        self.icon = self.cc.QIcon(self.parent.config.icon_file_path + "crypto.png")
         # This widget relies on the crypto identifier and uses some functions via IDA proxy
         self.ci = self.parent.crypto_identifier
-        self.ip = self.parent.ida_proxy
-        # references to Qt-specific modules
-        self.QtGui = QtGui
-        self.QtCore = QtCore
+        self.ida_proxy = self.cc.ida_proxy
         self.NumberQTableWidgetItem = NumberQTableWidgetItem
 
-        self.central_widget = self.QtGui.QWidget()
+        self.central_widget = self.cc.QWidget()
         self.setCentralWidget(self.central_widget)
         self._createGui()
 
@@ -66,9 +64,9 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         self._createSignatureWidget()
 
         # layout and fill the widget
-        crypto_layout = QtGui.QVBoxLayout()
-        splitter = self.QtGui.QSplitter(self.QtCore.Qt.Vertical)
-        q_clean_style = QtGui.QStyleFactory.create('Plastique')
+        crypto_layout = self.cc.QVBoxLayout()
+        splitter = self.cc.QSplitter(self.cc.QtCore.Qt.Vertical)
+        q_clean_style = self.cc.QStyleFactory.create('Plastique')
         splitter.setStyle(q_clean_style)
         splitter.addWidget(self.aritlog_widget)
         splitter.addWidget(self.signature_widget)
@@ -92,7 +90,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create an action for the scan button of the toolbar and connect it.
         """
-        self.scanArithLogAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "scan_arithmetic.png"), \
+        self.scanArithLogAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scan_arithmetic.png"), \
             "Perform deep scan with crypto signatures (might take some time)", self)
         self.scanArithLogAction.triggered.connect(self._onScanArithLogButtonClicked)
 
@@ -100,7 +98,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create an action for the scan button of the toolbar and connect it.
         """
-        self.scanSignatureAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "scan_crypto.png"), \
+        self.scanSignatureAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scan_crypto.png"), \
             "Perform deep scan with crypto signatures (might take some time)", self)
         self.scanSignatureAction.triggered.connect(self._onScanSignatureButtonClicked)
 
@@ -108,7 +106,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create an action for the scan button of the toolbar and connect it.
         """
-        self.annotateAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "tags.png"), \
+        self.annotateAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "tags.png"), \
             "Annotate signature hits with repeatable comments.", self)
         self.annotateAction.triggered.connect(self._onAnnotateButtonClicked)
 
@@ -143,24 +141,24 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create the widget for the arithmetic/logic heuristic.
         """
-        self.aritlog_widget = QtGui.QWidget()
-        aritlog_layout = QtGui.QVBoxLayout()
-        self.aritlog_label = QtGui.QLabel("Arithmetic/Logic Heuristic")
-        self.aritlog_result_label = QtGui.QLabel("0 Blocks matched with these settings.")
+        self.aritlog_widget = self.cc.QWidget()
+        aritlog_layout = self.cc.QVBoxLayout()
+        self.aritlog_label = self.cc.QLabel("Arithmetic/Logic Heuristic")
+        self.aritlog_result_label = self.cc.QLabel("0 Blocks matched with these settings.")
 
         # aritlog controls
-        self.aritlog_controls_widget = QtGui.QWidget()
-        aritlog_controls_layout = QtGui.QHBoxLayout()
+        self.aritlog_controls_widget = self.cc.QWidget()
+        aritlog_controls_layout = self.cc.QHBoxLayout()
 
         # aritlog control sliders
-        self.aritlog_controls_slider_widget = QtGui.QWidget()
-        aritlog_controls_editor_layout = QtGui.QVBoxLayout()
-        self.aritlog_controls_threshold_editor = BoundsEditor("ArithLog Rating: ", 0, 100, 40, 100)
+        self.aritlog_controls_slider_widget = self.cc.QWidget()
+        aritlog_controls_editor_layout = self.cc.QVBoxLayout()
+        self.aritlog_controls_threshold_editor = BoundsEditor(self, "ArithLog Rating: ", 0, 100, 40, 100)
         self.aritlog_controls_threshold_editor.boundsChanged.connect(self.populateAritlogTable)
-        self.aritlog_controls_bblock_size_editor = BoundsEditor("Basic Blocks size: ", 0, 100, 8, 100, \
+        self.aritlog_controls_bblock_size_editor = BoundsEditor(self, "Basic Blocks size: ", 0, 100, 8, 100, \
             False)
         self.aritlog_controls_bblock_size_editor.boundsChanged.connect(self.populateAritlogTable)
-        self.aritlog_controls_num_api_editor = BoundsEditor("Allowed calls: ", 0, 10, 0, 1, \
+        self.aritlog_controls_num_api_editor = BoundsEditor(self, "Allowed calls: ", 0, 10, 0, 1, \
             False)
         self.aritlog_controls_num_api_editor.boundsChanged.connect(self.populateAritlogTable)
         aritlog_controls_editor_layout.addWidget(self.aritlog_controls_threshold_editor)
@@ -169,18 +167,18 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         self.aritlog_controls_slider_widget.setLayout(aritlog_controls_editor_layout)
 
         # aritlog control result aggregation modes
-        self.aritlog_controls_aggregator_widget = QtGui.QWidget()
-        aritlog_controls_aggregator_layout = QtGui.QVBoxLayout()
-        self.aritlog_controls_zeroing_cb = QtGui.QCheckBox("Exclude Zeroing")
-        self.aritlog_controls_zeroing_cb.setCheckState(self.QtCore.Qt.Checked)
+        self.aritlog_controls_aggregator_widget = self.cc.QWidget()
+        aritlog_controls_aggregator_layout = self.cc.QVBoxLayout()
+        self.aritlog_controls_zeroing_cb = self.cc.QCheckBox("Exclude Zeroing")
+        self.aritlog_controls_zeroing_cb.setCheckState(self.cc.QtCore.Qt.Checked)
         self.aritlog_controls_zeroing_cb.stateChanged.connect(self.populateAritlogTable)
-        self.aritlog_controls_looped_cb = QtGui.QCheckBox("Any Loops")
-        self.aritlog_controls_looped_cb.setCheckState(self.QtCore.Qt.Checked)
+        self.aritlog_controls_looped_cb = self.cc.QCheckBox("Any Loops")
+        self.aritlog_controls_looped_cb.setCheckState(self.cc.QtCore.Qt.Checked)
         self.aritlog_controls_looped_cb.stateChanged.connect(self.populateAritlogTable)
-        self.aritlog_controls_trivially_looped_cb = QtGui.QCheckBox("Trivial Loops")
-        self.aritlog_controls_trivially_looped_cb.setCheckState(self.QtCore.Qt.Checked)
+        self.aritlog_controls_trivially_looped_cb = self.cc.QCheckBox("Trivial Loops")
+        self.aritlog_controls_trivially_looped_cb.setCheckState(self.cc.QtCore.Qt.Checked)
         self.aritlog_controls_trivially_looped_cb.stateChanged.connect(self.populateAritlogTable)
-        self.aritlog_controls_group_cb = QtGui.QCheckBox("Group by Functions")
+        self.aritlog_controls_group_cb = self.cc.QCheckBox("Group by Functions")
         self.aritlog_controls_group_cb.stateChanged.connect(self.populateAritlogTable)
         aritlog_controls_aggregator_layout.addWidget(self.aritlog_controls_zeroing_cb)
         aritlog_controls_aggregator_layout.addWidget(self.aritlog_controls_looped_cb)
@@ -193,8 +191,8 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         self.aritlog_controls_widget.setLayout(aritlog_controls_layout)
 
         # aritlog result visualization
-        self.aritlog_result_widget = QtGui.QWidget()
-        aritlog_result_layout = QtGui.QVBoxLayout()
+        self.aritlog_result_widget = self.cc.QWidget()
+        aritlog_result_layout = self.cc.QVBoxLayout()
         self._createAritlogTable()
         aritlog_result_layout.addWidget(self.aritlog_table)
         self.aritlog_result_widget.setLayout(aritlog_result_layout)
@@ -210,7 +208,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create the result table for displaying results of the arithmetic/logic heuristic.
         """
-        self.aritlog_table = QtGui.QTableWidget()
+        self.aritlog_table = self.cc.QTableWidget()
         self.populateAritlogTable()
         self.aritlog_table.doubleClicked.connect(self._onAritlogResultDoubleClicked)
 
@@ -245,14 +243,14 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         for row, data_item in enumerate(table_data):
             for column, column_name in enumerate(self.aritlog_table_header_labels):
                 tmp_item = self._getAritlogTableItem(data_item, column, is_grouped)
-                tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
-                tmp_item.setTextAlignment(self.QtCore.Qt.AlignRight)
+                tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
+                tmp_item.setTextAlignment(self.cc.QtCore.Qt.AlignRight)
                 self.aritlog_table.setItem(row, column, tmp_item)
             self.aritlog_table.resizeRowToContents(row)
 
         self._setAritlogResultLabel(self.aritlog_table.rowCount(), is_grouped)
 
-        self.aritlog_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+        self.aritlog_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
         self.aritlog_table.resizeColumnsToContents()
         self.aritlog_table.setSortingEnabled(True)
 
@@ -281,7 +279,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         if is_grouped:
             tmp_dict = {}
             for block in aritlog_blocks:
-                function_address = self.ip.LocByName(self.ip.GetFunctionName(block.start_ea))
+                function_address = self.ida_proxy.LocByName(self.ida_proxy.GetFunctionName(block.start_ea))
                 if function_address not in tmp_dict.keys():
                     tmp_dict[function_address] = {"function_address": function_address, "num_blocks": 1, \
                         "num_log_arith_instructions": block.num_log_arit_instructions}
@@ -317,24 +315,24 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         @type: is_grouped: boolean
         @return: the prepared item
         """
-        tmp_item = self.QtGui.QTableWidgetItem()
+        tmp_item = self.cc.QTableWidgetItem()
         if column_index == 0:
             if is_grouped:
-                tmp_item = self.QtGui.QTableWidgetItem("0x%x" % data_item["function_address"])
+                tmp_item = self.cc.QTableWidgetItem("0x%x" % data_item["function_address"])
             else:
-                function_address = self.ip.LocByName(self.ip.GetFunctionName(data_item.start_ea))
-                tmp_item = self.QtGui.QTableWidgetItem("0x%x" % function_address)
+                function_address = self.ida_proxy.LocByName(self.ida_proxy.GetFunctionName(data_item.start_ea))
+                tmp_item = self.cc.QTableWidgetItem("0x%x" % function_address)
         elif column_index == 1:
             if is_grouped:
-                tmp_item = self.QtGui.QTableWidgetItem(self.ip.GetFunctionName(data_item["function_address"]))
+                tmp_item = self.cc.QTableWidgetItem(self.ida_proxy.GetFunctionName(data_item["function_address"]))
             else:
-                function_address = self.ip.LocByName(self.ip.GetFunctionName(data_item.start_ea))
-                tmp_item = self.QtGui.QTableWidgetItem(self.ip.GetFunctionName(function_address))
+                function_address = self.ida_proxy.LocByName(self.ida_proxy.GetFunctionName(data_item.start_ea))
+                tmp_item = self.cc.QTableWidgetItem(self.ida_proxy.GetFunctionName(function_address))
         elif column_index == 2:
             if is_grouped:
                 tmp_item = self.NumberQTableWidgetItem("%d" % (data_item["num_blocks"]))
             else:
-                tmp_item = self.QtGui.QTableWidgetItem("0x%x" % data_item.start_ea)
+                tmp_item = self.cc.QTableWidgetItem("0x%x" % data_item.start_ea)
         elif column_index == 3:
             if is_grouped:
                 tmp_item = self.NumberQTableWidgetItem("%d" % (data_item["num_log_arith_instructions"]))
@@ -357,7 +355,7 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
             clicked_address = self.aritlog_table.item(mi.row(), 0).text()
         elif mi.column() >= 2:
             clicked_address = self.aritlog_table.item(mi.row(), 2).text()
-        self.ip.Jump(int(clicked_address, 16))
+        self.ida_proxy.Jump(int(clicked_address, 16))
 
     def _updateLoopCheckboxes(self):
         is_trivially_looped = self.aritlog_controls_trivially_looped_cb.isChecked()
@@ -374,9 +372,9 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         """
         Create the widget for the signature part.
         """
-        self.signature_widget = QtGui.QWidget()
-        signature_layout = QtGui.QVBoxLayout()
-        self.signature_tree = QtGui.QTreeWidget()
+        self.signature_widget = self.cc.QWidget()
+        signature_layout = self.cc.QVBoxLayout()
+        self.signature_tree = self.cc.QTreeWidget()
         self.signature_tree.setColumnCount(1)
         self.signature_tree.setHeaderLabels(["Found Crypto Signatures"])
         self.signature_tree.itemDoubleClicked.connect(self._onSignatureTreeItemDoubleClicked)
@@ -395,18 +393,18 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         self.qtreewidgetitems_to_addresses = {}
 
         for signature in signature_hits:
-            root = self.QtGui.QTreeWidgetItem(self.signature_tree)
+            root = self.cc.QTreeWidgetItem(self.signature_tree)
             root.setText(0, signature)
             for hit in signature_hits[signature]:
-                hit_information = self.QtGui.QTreeWidgetItem(root)
+                hit_information = self.cc.QTreeWidgetItem(root)
                 hit_information.setText(0, "0x%x (%d bytes matched)" % (hit.start_address, len(hit.matched_signature)))
                 self.qtreewidgetitems_to_addresses[hit_information] = hit.start_address
                 for xref in hit.code_refs_to:
-                    code_ref = self.QtGui.QTreeWidgetItem(hit_information)
+                    code_ref = self.cc.QTreeWidgetItem(hit_information)
                     code_ref.setText(0, "referenced by 0x%x (function: %s)" % (xref[0],
-                        self.ip.GetFunctionName(xref[0])))
+                        self.ida_proxy.GetFunctionName(xref[0])))
                     if xref[1]:
-                        code_ref.setForeground(0, self.QtGui.QBrush(self.QtGui.QColor(0xFF0000)))
+                        code_ref.setForeground(0, self.cc.QBrush(self.cc.QColor(0xFF0000)))
                     self.qtreewidgetitems_to_addresses[code_ref] = xref[0]
         self.signature_tree.setSortingEnabled(True)
 
@@ -416,21 +414,22 @@ class CryptoIdentificationWidget(QtGui.QMainWindow):
         Changes IDA View either to location clicked.
         """
         if item in self.qtreewidgetitems_to_addresses:
-            self.ip.Jump(self.qtreewidgetitems_to_addresses[item])
+            self.ida_proxy.Jump(self.qtreewidgetitems_to_addresses[item])
 
     def annotateHits(self):
         signature_hits = self.ci.getSignatureHits()
         for hit in signature_hits:
             for place in signature_hits[hit]:
                 addr = place.start_address
-                prev_head = self.ip.PrevHead(addr, addr - 14)
-                flags = self.ip.GetFlags(prev_head)
-                if not self.ip.RptCmt(addr):
-                    if self.ip.isCode(flags):
+                prev_head = self.ida_proxy.PrevHead(addr, addr - 14)
+                flags = self.ida_proxy.GetFlags(prev_head)
+                if not self.ida_proxy.RptCmt(addr):
+                    if self.ida_proxy.isCode(flags):
                         # maximum instruction length on Intel is 14 bytes, so we don't need to search further back.
-                        self.ip.MakeRptCmt(prev_head, place.getSignatureNames())
+                        self.ida_proxy.MakeRptCmt(prev_head, place.getSignatureNames())
                     else:
-                        self.ip.MakeRptCmt(addr, place.getSignatureNames())
+                        self.ida_proxy.MakeRptCmt(addr, place.getSignatureNames())
                 else:
                     print "CryptoIdentificationWidget: Skipping 0x%x (%s), already has comment: \"%s\"" % \
-                        (addr, place.getSignatureNames(), self.ip.RptCmt(addr))
+                        (addr, place.getSignatureNames(), self.ida_proxy.RptCmt(addr))
+

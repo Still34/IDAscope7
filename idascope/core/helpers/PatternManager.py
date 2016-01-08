@@ -352,7 +352,8 @@ class PatternManager:
         VariablePattern("30 82 ? ? 02 82 04 01"): "PKCS: Public-Key (8192 bit)",
     }
 
-    def __init__(self):
+    def __init__(self, parent):
+        self.cc = parent.cc
         print ("[|] loading PatternManager")
 
     def padStringToDwords(self, stringToPad):
@@ -397,10 +398,10 @@ class PatternManager:
         """
         static_signature_keys = []
         for signature in self.signatures.keys():
-            if not isinstance(signature, VariablePattern):
+            if not isinstance(signature, self.cc.VariablePattern):
                 static_signature_keys.append(signature)
             # extend self.signatures by dword padded version of MutablePatterns
-            if isinstance(signature, MutablePattern):
+            if isinstance(signature, self.cc.MutablePattern):
                 padded = self.padStringToDwords(signature)
                 self.signatures[padded] = self.signatures[signature] + " (dword padded)"
                 static_signature_keys.append(padded)
@@ -413,7 +414,7 @@ class PatternManager:
         """
         variable_signatures_to_names = {}
         for signature in self.signatures.keys():
-            if isinstance(signature, VariablePattern):
+            if isinstance(signature, self.cc.VariablePattern):
                 variable_signatures_to_names[self.signatures[signature]] = signature
         return variable_signatures_to_names
 

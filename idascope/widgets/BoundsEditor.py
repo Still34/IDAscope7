@@ -35,20 +35,23 @@ it is originaly licensed under the terms of the Python Software
 Foundation License, which is compatible with the above terms.
 """
 
-from PySide import QtGui, QtCore
+import idascope.core.helpers.QtShim as QtShim
+QWidget = QtShim.get_QWidget()
+Signal = QtShim.get_Signal()
 
 from RangeSlider import RangeSlider
 
 
-class BoundsEditor(QtGui.QWidget):
+class BoundsEditor(QWidget):
     """
     Custom widget consisting of a QLineEdit, a custom double slider and another QLineEdit.
     """
 
-    boundsChanged = QtCore.Signal()
+    boundsChanged = Signal()
 
-    def __init__(self, name, min, max, low, high, is_float=True):
-        super(BoundsEditor, self).__init__()
+    def __init__(self, parent, name, min, max, low, high, is_float=True):
+        self.cc = parent.cc
+        self.cc.QWidget.__init__(self)
         self.name = name
         self.min = min
         self.max = max
@@ -60,13 +63,13 @@ class BoundsEditor(QtGui.QWidget):
         if self.is_float:
             self.format = "%2.2f"
 
-        panel = QtGui.QHBoxLayout(self)
+        panel = self.cc.QHBoxLayout(self)
         panel.setContentsMargins(0, 0, 0, 0)
 
-        self._label_name = QtGui.QLabel(self.name)
+        self._label_name = self.cc.QLabel(self.name)
         panel.addWidget(self._label_name)
 
-        self._label_lo = QtGui.QLineEdit(self.format % self.low)
+        self._label_lo = self.cc.QLineEdit(self.format % self.low)
         self._label_lo.setMinimumSize(45, 0)
         self._label_lo.editingFinished.connect(self._updateLowOnEnter)
         self._label_lo.returnPressed.connect(self._updateLowOnEnter)
@@ -77,7 +80,7 @@ class BoundsEditor(QtGui.QWidget):
         sh.setWidth(sh.width() / 2)
         self._label_lo.setMaximumSize(sh)
 
-        self.slider = slider = RangeSlider(QtCore.Qt.Horizontal)
+        self.slider = slider = RangeSlider(self, self.cc.QtCore.Qt.Horizontal)
         slider.setMinimum(0)
         slider.setMaximum(10000)
         slider.setPageStep(1000)
@@ -88,7 +91,7 @@ class BoundsEditor(QtGui.QWidget):
         slider.sliderMoved.connect(self._updateObjectOnScroll)
         panel.addWidget(slider)
 
-        self._label_hi = QtGui.QLineEdit(self.format % self.high)
+        self._label_hi = self.cc.QLineEdit(self.format % self.high)
         self._label_hi.setMinimumSize(45, 0)
         self._label_hi.editingFinished.connect(self._updateHighOnEnter)
         self._label_hi.returnPressed.connect(self._updateHighOnEnter)
@@ -199,3 +202,4 @@ class BoundsEditor(QtGui.QWidget):
     def mouseReleaseEvent(self, event):
         event.accept()
         self.boundsChanged.emit()
+

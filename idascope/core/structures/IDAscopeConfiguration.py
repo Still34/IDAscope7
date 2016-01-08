@@ -24,24 +24,15 @@
 #
 ########################################################################
 
-import os
-
 
 class IDAscopeConfiguration():
     """
     This class is an information container for a segment.
     """
 
-    def __init__(self, configuration, os_ref=None):
-        if os_ref is not None:
-            self.os = os_ref
-        else:
-            self.os = os
-        # FIXME: second level path problem of referencing modules when accessing os.path.*
-        try:
-            self.os_path_normpath = self.os.path.normpath
-        except:
-            self.os_path_normpath = None
+    def __init__(self, configuration, class_collection):
+        self.class_collection = class_collection
+        self.cc = class_collection
         # default configuration
         self.idascope_plugin_only = False
         self.debug = False
@@ -67,39 +58,35 @@ class IDAscopeConfiguration():
         self.idascope_plugin_only = configuration["plugin_only"]
         self.debug = configuration["debug"]
         # file path to the directory containing icons used by IDAscope
-        self.icon_file_path = self.root_file_path + self.os.sep \
-            + "idascope" + self.os.sep + "icons" + self.os.sep
+        self.icon_file_path = self.root_file_path + self.cc.os.sep \
+            + "idascope" + self.cc.os.sep + "icons" + self.cc.os.sep
         # parse other paths
         self.config_path_sep = configuration["config_path_sep"]
-        self.inspection_tags_file = self.root_file_path + self.os.sep \
+        self.inspection_tags_file = self.root_file_path + self.cc.os.sep \
             + self._normalizePath(configuration["paths"]["inspection_tags_file"])
-        self.inspection_profiles_folder = self.root_file_path + self.os.sep \
+        self.inspection_profiles_folder = self.root_file_path + self.cc.os.sep \
             + self._normalizePath(configuration["paths"]["inspection_profiles_folder"])
-        self.winapi_keywords_file = self.root_file_path + self.os.sep + \
+        self.winapi_keywords_file = self.root_file_path + self.cc.os.sep + \
             self._normalizePath(configuration["paths"]["winapi_keywords_file"])
-        self.winapi_rootdir = self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.os.sep
+        self.winapi_rootdir = self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
         # widget related configurations
         self.winapi_shortcut = configuration["winapi"]["search_hotkey"]
         self.winapi_load_keyword_database = configuration["winapi"]["load_keyword_database"]
         self.winapi_online_enabled = configuration["winapi"]["online_enabled"]
         self.inspection_default_semantics = configuration["inspection"]["default_semantics"]
         # semantic explorer related
-        self.smtx_enum_file = self._normalizePath(self.root_file_path + self.os.sep
+        self.smtx_enum_file = self._normalizePath(self.root_file_path + self.cc.os.sep
             + configuration["semantic_explorer"]["enum_file"])
-        self.smtx_semantics_file = self._normalizePath(self.root_file_path + self.os.sep
+        self.smtx_semantics_file = self._normalizePath(self.root_file_path + self.cc.os.sep
             + configuration["semantic_explorer"]["semantics_file"])
         # yara related
-        idascope_yara_folder = self.root_file_path + self.os.sep + os.sep.join(["idascope", "data", "yara"])
+        idascope_yara_folder = self.root_file_path + self.cc.os.sep + self.cc.os.sep.join(["idascope", "data", "yara"])
         self.yara_sig_folders = [self._normalizePath(idascope_yara_folder)]
         self.yara_sig_folders.extend(configuration["yara"]["yara_sigs"])
 
     def _normalizePath(self, path):
-        if self.os_path_normpath is None:
-            # print "Skipping path normalization.", path
-            return path
-        else:
-            parts = path.split(self.config_path_sep)
-            return self.os_path_normpath(self.os.sep.join(parts))
+        parts = path.split(self.config_path_sep)
+        return self.cc.os_path.normpath(self.cc.os.sep.join(parts))
 
     def __str__(self):
         """
@@ -113,3 +100,4 @@ class IDAscopeConfiguration():
             + "  winapi_keywords_file: %s\n" % self.winapi_keywords_file \
             + "  winapi_rootdir: %s\n" % self.winapi_rootdir \
             + "  yara_sigs: %s" % self.yara_sig_folders
+

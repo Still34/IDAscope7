@@ -31,18 +31,6 @@
 #     (http://www.trapkit.de/research/sslkeyfinder/)
 ########################################################################
 
-import time
-import re
-
-from IdaProxy import IdaProxy
-from helpers.PatternManager import PatternManager
-from helpers.GraphHelper import GraphHelper
-import helpers.Misc
-
-from idascope.core.structures.Segment import Segment
-from idascope.core.structures.AritlogBasicBlock import AritlogBasicBlock
-from idascope.core.structures.CryptoSignatureHit import CryptoSignatureHit
-
 
 class CryptoIdentifier():
     """
@@ -53,16 +41,15 @@ class CryptoIdentifier():
     2. A signature-based approach, using the signatures defined in PatternManager
     """
 
-    def __init__(self):
+    def __init__(self, config):
         self.name = "CryptoIdentifier"
         print ("[|] loading CryptoIdentifier")
-        self.time = time
-        self.re = re
-        self.GraphHelper = GraphHelper
-        self.CryptoSignatureHit = CryptoSignatureHit
-        self.AritlogBasicBlock = AritlogBasicBlock
-        self.Segment = Segment
-        self.pm = PatternManager()
+        self.cc = config.class_collection
+        self.time = self.cc.time
+        self.re = self.cc.re
+        self.ida_proxy = self.cc.ida_proxy
+        self.graph_helper = self.cc.GraphHelper(self.cc)
+        self.pm = self.cc.PatternManager(self)
         self.low_rating_threshold = 0.4
         self.high_rating_threshold = 1.0
         self.low_instruction_threshold = 8
@@ -78,7 +65,6 @@ class CryptoIdentifier():
         self.match_filter_factor = 0.5
         self.aritlog_blocks = []
         self.signature_hits = []
-        self.ida_proxy = IdaProxy()
         return
 
     def scan(self):
@@ -107,7 +93,7 @@ class CryptoIdentifier():
             function_dgraph = {}
             blocks_in_loops = set()
             for current_block in function_chart:
-                block = self.AritlogBasicBlock(current_block.startEA, current_block.endEA)
+                block = self.cc.AritlogBasicBlock(current_block.startEA, current_block.endEA)
                 for instruction in self.ida_proxy.Heads(block.start_ea, block.end_ea):
                     if self.ida_proxy.isCode(self.ida_proxy.GetFlags(instruction)):
                         mnemonic = self.ida_proxy.GetMnem(instruction)
@@ -125,8 +111,7 @@ class CryptoIdentifier():
                     block.is_contained_in_trivial_loop = True
                     blocks_in_loops.update([current_block.startEA])
             # perform Tarjan's algorithm to identify strongly connected components (= loops) in the function graph
-            graph_helper = self.GraphHelper()
-            strongly_connected = graph_helper.calculateStronglyConnectedComponents(function_dgraph)
+            strongly_connected = self.graph_helper.calculateStronglyConnectedComponents(function_dgraph)
             non_trivial_loops = [component for component in strongly_connected if len(component) > 1]
             for component in non_trivial_loops:
                 for block in component:
@@ -212,12 +197,12 @@ class CryptoIdentifier():
         segments = []
         for segment_ea in self.ida_proxy.Segments():
             try:
-                segment = self.Segment()
+                segment = self.cc.Segment()
                 segment.start_ea = segment_ea
                 segment.end_ea = self.ida_proxy.SegEnd(segment_ea)
                 segment.name = self.ida_proxy.SegName(segment_ea)
                 buf = ""
-                for ea in helpers.Misc.lrange(segment_ea, self.ida_proxy.SegEnd(segment_ea)):
+                for ea in self.cc.Misc.lrange(segment_ea, self.ida_proxy.SegEnd(segment_ea)):
                     buf += chr(self.ida_proxy.get_byte(ea))
                 segment.data = buf
                 segments.append(segment)
@@ -243,7 +228,7 @@ class CryptoIdentifier():
             (len(keywords.keys()), pattern_size))
         for keyword in keywords.keys():
             for segment in segments:
-                crypt_results.extend([self.CryptoSignatureHit(segment.start_ea + match.start(), \
+                crypt_results.extend([self.cc.CryptoSignatureHit(segment.start_ea + match.start(), \
                     keywords[keyword], keyword) for match in self.re.finditer(self.re.escape(keyword), segment.data)])
         print ("  [|] PatternManager now scanning variable signatures")
         variable_matches = self.scanVariablePatterns()
@@ -266,7 +251,7 @@ class CryptoIdentifier():
             while current_seg != self.ida_proxy.BAD_ADDR:
                 signature_hit = self.ida_proxy.find_binary(current_seg, seg_end, variable_signatures[var_sig], 16, 1)
                 if signature_hit != self.ida_proxy.BAD_ADDR:
-                    crypt_results.append(self.CryptoSignatureHit(signature_hit, \
+                    crypt_results.append(self.cc.CryptoSignatureHit(signature_hit, \
                         [var_sig], variable_signatures[var_sig]))
                     current_seg = signature_hit + variable_signatures[var_sig].count(" ") + 1
                 else:
@@ -280,7 +265,7 @@ class CryptoIdentifier():
                     signature_hit = self.ida_proxy.find_binary(current_seg, seg_end, variable_signatures[var_sig], 16, 1)
                     if signature_hit != self.ida_proxy.BAD_ADDR:
                         string_addr = self.extractAddr(signature_hit - temporary_segment, decoded_base64)
-                        crypt_results.append(self.CryptoSignatureHit(string_addr, \
+                        crypt_results.append(self.cc.CryptoSignatureHit(string_addr, \
                             [var_sig], variable_signatures[var_sig]))
                         current_seg = signature_hit + variable_signatures[var_sig].count(" ") + 1
                     else:
@@ -385,7 +370,7 @@ class CryptoIdentifier():
             hit_intersection = [element for element in hit.signature_names if element in previous_signature_names]
             if len(hit_intersection) == 0:
                 previous_signature_names = hit.signature_names
-                unified_hits.append(self.CryptoSignatureHit(hit.start_address, hit.signature_names, \
+                unified_hits.append(self.cc.CryptoSignatureHit(hit.start_address, hit.signature_names, \
                     hit.matched_signature))
             else:
                 previous_signature_names = hit_intersection
@@ -394,7 +379,7 @@ class CryptoIdentifier():
                     previous_hit.matched_signature += hit.matched_signature
                     previous_hit.signature_names = hit_intersection
                 else:
-                    unified_hits.append(self.CryptoSignatureHit(hit.start_address, hit.signature_names, \
+                    unified_hits.append(self.cc.CryptoSignatureHit(hit.start_address, hit.signature_names, \
                         hit.matched_signature))
 
         filtered_hits = []

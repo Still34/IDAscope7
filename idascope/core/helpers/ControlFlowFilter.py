@@ -24,12 +24,12 @@
 #
 ########################################################################
 
-from idascope.core.IdaProxy import IdaProxy
-
 
 class ControlFlowFilter():
-    def __init__(self, func_blocks, predecessors, successors):
-        self.ida_proxy = IdaProxy()
+    def __init__(self, parent, func_blocks, predecessors, successors):
+        self.parent = parent
+        self.cc = parent.cc
+        self.ida_proxy = self.cc.ida_proxy
         self.func_blocks = func_blocks
         self.predecessors = predecessors
         self.successors = successors

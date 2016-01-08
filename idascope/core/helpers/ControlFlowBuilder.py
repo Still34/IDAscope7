@@ -24,22 +24,19 @@
 #
 ########################################################################
 
-from ApiManager import ApiManager
-from ControlFlowFilter import ControlFlowFilter
-
-from idascope.core.IdaProxy import IdaProxy
-
 
 class ControlFlowBuilder():
 
-    def __init__(self, targetSemanticApis, start_apis):
-        self.ida_proxy = IdaProxy()
+    def __init__(self, parent, targetSemanticApis, start_apis):
+        self.parent = parent
+        self.cc = parent.cc
+        self.ida_proxy = self.cc.ida_proxy
         self.func_blocks = {}
         self.predecessors = {}
         self.successors = {}
         self.start_apis = start_apis
         self.target_apis = targetSemanticApis
-        self.manager = ApiManager(self.target_apis)
+        self.manager = self.cc.ApiManager(self, self.target_apis)
 
     def build(self):
         semanticRefs = {}
@@ -83,7 +80,8 @@ class ControlFlowBuilder():
 
         print " done."
         print "  Pruning flow graph...",
-        predecessors, successors = ControlFlowFilter(self.func_blocks, self.predecessors, self.successors).filter()
+        predecessors, successors = self.cc.ControlFlowFilter(self, self.func_blocks, self.predecessors, self.successors).filter()
         print " done."
 
         return self.func_blocks, function_apis, block_calls, successors, predecessors, semanticRefs
+

@@ -24,15 +24,15 @@
 #
 ########################################################################
 
-import os
-import sys
-import time
+from ClassCollection import ClassCollection
+import idascope.core.helpers.QtShim as QtShim
+QtGui = QtShim.get_QtGui()
+QtCore = QtShim.get_QtCore()
+QtWidgets = QtShim.get_QtWidgets()
 
 import idc
 import idaapi
 from idaapi import PluginForm, plugin_t
-from PySide import QtGui
-from PySide.QtGui import QIcon
 
 import idascope.config as config
 from idascope.core.structures.IDAscopeConfiguration import IDAscopeConfiguration
@@ -55,7 +55,7 @@ from idascope.widgets.SemanticExplorerWidget import SemanticExplorerWidget
 
 HOTKEYS = None
 IDASCOPE = None
-NAME = "simpliFiRE.IDAscope v1.2"
+NAME = "simpliFiRE.IDAscope v1.2.1"
 
 
 class IDAscopeForm(PluginForm):
@@ -69,18 +69,19 @@ class IDAscopeForm(PluginForm):
         global HOTKEYS
         HOTKEYS = []
         self.idascope_widgets = []
+        self.cc = ClassCollection()
         self.ensureRootPathSanity(config.configuration)
-        self.config = IDAscopeConfiguration(config.configuration)
-        self.icon = QIcon(self.config.icon_file_path + "idascope.png")
+        self.config = IDAscopeConfiguration(config.configuration, self.cc)
+        self.icon = self.cc.QIcon(self.config.icon_file_path + "idascope.png")
 
     def ensureRootPathSanity(self, configuration):
         try:
             root_dir = configuration["paths"]["idascope_root_dir"]
-            if not os.path.exists(root_dir) or not "IDAscope.py" in os.listdir(root_dir):
+            if not self.cc.os.path.exists(root_dir) or not "IDAscope.py" in self.cc.os.listdir(root_dir):
                 print "[!] IDAscope.py is not present in root directory specified in \"config.py\", " \
                      + "trying to resolve path..."
-                resolved_pathname = os.path.dirname(sys.argv[0])
-                if "IDAscope.py" in os.listdir(resolved_pathname):
+                resolved_pathname = self.cc.os.path.dirname(self.cc.sys.argv[0])
+                if "IDAscope.py" in self.cc.os.listdir(resolved_pathname):
                     print "[+] IDAscope root directory successfully resolved."
                     configuration["paths"]["idascope_root_dir"] = resolved_pathname
                 else:
@@ -89,28 +90,27 @@ class IDAscopeForm(PluginForm):
         except:
             print "[!] IDAscope config is broken. Could not locate root directory. " \
                  + "Try setting the field \"idascope_root_dir\" to the path where \"IDAscope.py\" is located."
-            sys.exit(-1)
+            self.cc.sys.exit(-1)
 
     def setupSharedModules(self):
         """
         Setup shared IDAscope modules.
         """
-        time_before = time.time()
+        time_before = self.cc.time.time()
         print ("[/] setting up shared modules...")
-        self.semantic_explorer = SemanticExplorer(self.config)
+        self.semantic_explorer = SemanticExplorer(self)
         self.documentation_helper = DocumentationHelper(self.config)
         self.semantic_identifier = SemanticIdentifier(self.config)
         self.winapi_provider = WinApiProvider(self.config)
-        self.crypto_identifier = CryptoIdentifier()
+        self.crypto_identifier = CryptoIdentifier(self.config)
         self.yara_scanner = YaraScanner(self.config)
-        self.ida_proxy = IdaProxy()
-        print ("[\\] this took %3.2f seconds.\n" % (time.time() - time_before))
+        print ("[\\] this took %3.2f seconds.\n" % (self.cc.time.time() - time_before))
 
     def setupWidgets(self):
         """
         Setup IDAscope widgets.
         """
-        time_before = time.time()
+        time_before = self.cc.time.time()
         print ("[/] setting up widgets...")
         self.idascope_widgets.append(SemanticExplorerWidget(self))
         self.idascope_widgets.append(FunctionInspectionWidget(self))
@@ -118,17 +118,17 @@ class IDAscopeForm(PluginForm):
         self.idascope_widgets.append(CryptoIdentificationWidget(self))
         self.idascope_widgets.append(YaraScannerWidget(self))
         self.setupIDAscopeForm()
-        print ("[\\] this took %3.2f seconds.\n" % (time.time() - time_before))
+        print ("[\\] this took %3.2f seconds.\n" % (self.cc.time.time() - time_before))
 
     def setupIDAscopeForm(self):
         """
         Orchestrate the already initialized widgets in tabs on the main window.
         """
-        self.tabs = QtGui.QTabWidget()
+        self.tabs = self.cc.QTabWidget()
         self.tabs.setTabsClosable(False)
         for widget in self.idascope_widgets:
             self.tabs.addTab(widget, widget.icon, widget.name)
-        layout = QtGui.QVBoxLayout()
+        layout = self.cc.QVBoxLayout()
         layout.addWidget(self.tabs)
         self.parent.setLayout(layout)
 
@@ -137,7 +137,11 @@ class IDAscopeForm(PluginForm):
         When creating the form, setup the shared modules and widgets
         """
         self.printBanner()
-        self.parent = self.FormToPySideWidget(form)
+        # compatibility with IDA < 6.9
+        try:
+            self.parent = self.FormToPySideWidget(form)
+        except Exception as exc:
+            self.parent = self.FormToPyQtWidget(form)
         self.parent.setWindowIcon(self.icon)
         self.setupSharedModules()
         self.setupWidgets()
@@ -201,8 +205,8 @@ class IDAscopeForm(PluginForm):
         hotkey_index = len(HOTKEYS)
         hotkey_name = "idascope_HOTKEY_%d" % hotkey_index
         HOTKEYS.append(py_function_pointer)
-        self.ida_proxy.CompileLine('static %s() { RunPythonStatement("HOTKEYS[%d]()"); }' % (hotkey_name, hotkey_index))
-        self.ida_proxy.AddHotkey(shortcut, hotkey_name)
+        self.cc.ida_proxy.CompileLine('static %s() { RunPythonStatement("HOTKEYS[%d]()"); }' % (hotkey_name, hotkey_index))
+        self.cc.ida_proxy.AddHotkey(shortcut, hotkey_name)
 
 ################################################################################
 # Usage as plugin

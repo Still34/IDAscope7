@@ -24,36 +24,35 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QIcon
+import idascope.core.helpers.QtShim as QtShim
+QMainWindow = QtShim.get_QMainWindow()
 
 from NumberQTableWidgetItem import NumberQTableWidgetItem
 from FunctionFilterDialog import FunctionFilterDialog
 
 
-class FunctionInspectionWidget(QtGui.QMainWindow):
+class FunctionInspectionWidget(QMainWindow):
     """
     This widget is the front-end for the semantic inspection.
     """
 
     def __init__(self, parent):
-        QtGui.QMainWindow.__init__(self)
+        self.cc = parent.cc
+        self.cc.QMainWindow.__init__(self)
         print "[|] loading FunctionInspectionWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
         self.name = "Functions"
-        self.icon = QIcon(self.parent.config.icon_file_path + "inspection.png")
+        self.icon = self.cc.QIcon(self.parent.config.icon_file_path + "inspection.png")
         # This widget relies on the semantic identifier and uses some functions via IDA proxy
         self.si = self.parent.semantic_identifier
         self.context_filter = self.si.createFunctionContextFilter()
         self.dh = self.parent.documentation_helper
-        self.ida_proxy = self.parent.ida_proxy
+        self.ida_proxy = self.cc.ida_proxy
         # references to Qt-specific modules
-        self.QtGui = QtGui
-        self.QtCore = QtCore
         self.NumberQTableWidgetItem = NumberQTableWidgetItem
         self.FunctionFilterDialog = FunctionFilterDialog
-        self.central_widget = self.QtGui.QWidget()
+        self.central_widget = self.cc.QWidget()
         self.setCentralWidget(self.central_widget)
         self._createGui()
 
@@ -61,8 +60,8 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the main GUI with its components.
         """
-        self.funcs_label = QtGui.QLabel("Functions of Interest (0/0)")
-        self.calls_label = QtGui.QLabel("Selected function contains the following API references with parameters:")
+        self.funcs_label = self.cc.QLabel("Functions of Interest (0/0)")
+        self.calls_label = self.cc.QLabel("Selected function contains the following API references with parameters:")
 
         self._createToolbar()
 
@@ -71,33 +70,33 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         self._createParameterTable()
 
         # layout and fill the widget
-        semantics_layout = QtGui.QVBoxLayout()
+        semantics_layout = self.cc.QVBoxLayout()
 
-        function_info_widget = QtGui.QWidget()
-        function_info_layout = QtGui.QHBoxLayout()
+        function_info_widget = self.cc.QWidget()
+        function_info_layout = self.cc.QHBoxLayout()
         function_info_layout.addWidget(self.funcs_label)
         function_info_widget.setLayout(function_info_layout)
 
-        upper_table_widget = QtGui.QWidget()
-        upper_table_layout = QtGui.QVBoxLayout()
+        upper_table_widget = self.cc.QWidget()
+        upper_table_layout = self.cc.QVBoxLayout()
         upper_table_layout.addWidget(function_info_widget)
         upper_table_layout.addWidget(self.funcs_table)
         upper_table_widget.setLayout(upper_table_layout)
 
-        calls_params_widget = QtGui.QWidget()
-        calls_params_layout = QtGui.QHBoxLayout()
+        calls_params_widget = self.cc.QWidget()
+        calls_params_layout = self.cc.QHBoxLayout()
         calls_params_layout.addWidget(self.calls_table)
         calls_params_layout.addWidget(self.parameter_table)
         calls_params_widget.setLayout(calls_params_layout)
 
-        lower_tables_widget = QtGui.QWidget()
-        lower_tables_layout = QtGui.QVBoxLayout()
+        lower_tables_widget = self.cc.QWidget()
+        lower_tables_layout = self.cc.QVBoxLayout()
         lower_tables_layout.addWidget(self.calls_label)
         lower_tables_layout.addWidget(calls_params_widget)
         lower_tables_widget.setLayout(lower_tables_layout)
 
-        splitter = self.QtGui.QSplitter(self.QtCore.Qt.Vertical)
-        q_clean_style = QtGui.QStyleFactory.create('Plastique')
+        splitter = self.cc.QSplitter(self.cc.QtCore.Qt.Vertical)
+        q_clean_style = self.cc.QStyleFactory.create('Plastique')
         splitter.setStyle(q_clean_style)
         splitter.addWidget(upper_table_widget)
         splitter.addWidget(lower_tables_widget)
@@ -137,7 +136,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         Create the refresh action for the toolbar. On activiation, it triggers a scan of I{SemanticIdentifier} and
         updates the GUI.
         """
-        self.refreshAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "scan.png"), "Refresh the " \
+        self.refreshAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scan.png"), "Refresh the " \
             + "view by scanning all named references again.", self)
         self.refreshAction.triggered.connect(self._onRefreshButtonClicked)
 
@@ -146,7 +145,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         Create the deep scan action for the toolbar. On activiation, it triggers a deep scan of I{SemanticIdentifier}
         andupdates the GUI.
         """
-        self.deepScanAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "scandeep.png"), "Refresh the " \
+        self.deepScanAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scandeep.png"), "Refresh the " \
             + "view by deep scanning all code.", self)
         self.deepScanAction.triggered.connect(self._onDeepScanButtonClicked)
 
@@ -155,7 +154,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         Create the action which performs renaming of the function names in the IDB that are covered by the scan of
         the I{SemanticIdentifier}.
         """
-        self.annotateAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "tags.png"), "Rename functions " \
+        self.annotateAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "tags.png"), "Rename functions " \
             + "according to the identified tags.", self)
         self.annotateAction.triggered.connect(self._onRenameButtonClicked)
 
@@ -163,7 +162,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which cycles through the semantic code coloring modes via I{DocumentationHelper}.
         """
-        self.toggleColorAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "colors.png"), \
+        self.toggleColorAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "colors.png"), \
             "Toggle semantic coloring.", self)
         self.toggleColorAction.triggered.connect(self._onColoringButtonClicked)
 
@@ -171,7 +170,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.fixUnknownCodeWithProloguesAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "fix.png"), \
+        self.fixUnknownCodeWithProloguesAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "fix.png"), \
             "Fix unknown code that has a well-known function prologue to functions.", self)
         self.fixUnknownCodeWithProloguesAction.triggered.connect(self._onFixUnknownCodeWithProloguesButtonClicked)
 
@@ -179,7 +178,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.fixAllUnknownCodeAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "fix_all.png"), \
+        self.fixAllUnknownCodeAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "fix_all.png"), \
             "Fix all unknown code to functions.", self)
         self.fixAllUnknownCodeAction.triggered.connect(self._onFixAllUnknownCodeButtonClicked)
 
@@ -187,7 +186,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.fixUnknownCodeAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "fix.png"), \
+        self.fixUnknownCodeAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "fix.png"), \
             "Fix unknown code to functions", self)
         self.fixUnknownCodeAction.triggered.connect(self._onFixUnknownCodeButtonClicked)
 
@@ -195,7 +194,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.renameWrappersAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "unwrap.png"), \
+        self.renameWrappersAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "unwrap.png"), \
             "Rename potential wrapper functions", self)
         self.renameWrappersAction.triggered.connect(self._onRenameWrappersButtonClicked)
 
@@ -203,7 +202,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.filterAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "filter.png"), \
+        self.filterAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "filter.png"), \
             "Adjust filter settings", self)
         self.filterAction.triggered.connect(self._onFilterButtonClicked)
 
@@ -211,7 +210,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the action which fixes unknown code to functions via I{DocumentationHelper}.
         """
-        self.semanticsChooserAction = QtGui.QComboBox()
+        self.semanticsChooserAction = self.cc.QComboBox()
         self.semanticsChooserAction.addItems(self.si.getSemanticsNames())
         if self.si.getActiveSemanticsName() in self.si.getSemanticsNames():
             self.semanticsChooserAction.setCurrentIndex(self.si.getSemanticsNames().index(self.si.getActiveSemanticsName()))
@@ -221,7 +220,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the top table used for showing all functions covered by scanning for semantic information.
         """
-        self.funcs_table = QtGui.QTableWidget()
+        self.funcs_table = self.cc.QTableWidget()
         self.funcs_table.clicked.connect(self._onFunctionClicked)
         self.funcs_table.doubleClicked.connect(self._onFunctionDoubleClicked)
 
@@ -230,7 +229,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         Create the bottom left table used for showing all identified API calls that are contained in the function
         selected in the function table.
         """
-        self.calls_table = QtGui.QTableWidget()
+        self.calls_table = self.cc.QTableWidget()
         self.calls_table.clicked.connect(self._onCallClicked)
         self.calls_table.doubleClicked.connect(self._onCallDoubleClicked)
 
@@ -238,7 +237,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Create the bottom right table used for showing all parameters for the API call selected in the calls table.
         """
-        self.parameter_table = QtGui.QTableWidget()
+        self.parameter_table = self.cc.QTableWidget()
         self.parameter_table.doubleClicked.connect(self._onParameterDoubleClicked)
 
 ################################################################################
@@ -277,17 +276,17 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
             for column, column_name in enumerate(self.funcs_header_labels):
                 tmp_item = None
                 if column == 0:
-                    tmp_item = self.QtGui.QTableWidgetItem("0x%x" % function_address)
+                    tmp_item = self.cc.QTableWidgetItem("0x%x" % function_address)
                 elif column == 1:
-                    tmp_item = self.QtGui.QTableWidgetItem(self.ida_proxy.GetFunctionName(function_address))
+                    tmp_item = self.cc.QTableWidgetItem(self.ida_proxy.GetFunctionName(function_address))
                 else:
                     query = self.context_filter.getQueryForHeading(column_name)
                     field_count = self.si.getFieldCountForFunctionAddress(query, function_address)
                     tmp_item = self.NumberQTableWidgetItem("%d" % field_count)
-                tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
+                tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
                 self.funcs_table.setItem(row, column, tmp_item)
             self.funcs_table.resizeRowToContents(row)
-        self.funcs_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+        self.funcs_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
         self.funcs_table.resizeColumnsToContents()
         self.funcs_table.setSortingEnabled(True)
         self.updateFunctionsLabel()
@@ -308,15 +307,15 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
             for row, tagged_call_ctx in enumerate(tagged_call_contexts):
                 for column, column_name in enumerate(self.calls_header_labels):
                     if column == 0:
-                        tmp_item = self.QtGui.QTableWidgetItem("0x%x" % tagged_call_ctx.address_of_call)
+                        tmp_item = self.cc.QTableWidgetItem("0x%x" % tagged_call_ctx.address_of_call)
                     elif column == 1:
-                        tmp_item = self.QtGui.QTableWidgetItem(tagged_call_ctx.called_function_name)
+                        tmp_item = self.cc.QTableWidgetItem(tagged_call_ctx.called_function_name)
                     elif column == 2:
-                        tmp_item = self.QtGui.QTableWidgetItem(tagged_call_ctx.tag)
-                    tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
+                        tmp_item = self.cc.QTableWidgetItem(tagged_call_ctx.tag)
+                    tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
                     self.calls_table.setItem(row, column, tmp_item)
                 self.calls_table.resizeRowToContents(row)
-            self.calls_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+            self.calls_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
             self.calls_table.resizeColumnsToContents()
             self.calls_table.setSortingEnabled(True)
 
@@ -336,17 +335,17 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
             for row, parameter_ctx in enumerate(parameter_contexts):
                 for column, column_name in enumerate(self.parameter_header_labels):
                     if column == 0:
-                        tmp_item = self.QtGui.QTableWidgetItem(parameter_ctx.getRenderedPushAddress())
+                        tmp_item = self.cc.QTableWidgetItem(parameter_ctx.getRenderedPushAddress())
                     elif column == 1:
-                        tmp_item = self.QtGui.QTableWidgetItem(parameter_ctx.parameter_type)
+                        tmp_item = self.cc.QTableWidgetItem(parameter_ctx.parameter_type)
                     elif column == 2:
-                        tmp_item = self.QtGui.QTableWidgetItem(parameter_ctx.parameter_name)
+                        tmp_item = self.cc.QTableWidgetItem(parameter_ctx.parameter_name)
                     elif column == 3:
-                        tmp_item = self.QtGui.QTableWidgetItem(parameter_ctx.getRenderedValue())
-                    tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
+                        tmp_item = self.cc.QTableWidgetItem(parameter_ctx.getRenderedValue())
+                    tmp_item.setFlags(tmp_item.flags() & ~self.cc.QtCore.Qt.ItemIsEditable)
                     self.parameter_table.setItem(row, column, tmp_item)
                 self.parameter_table.resizeRowToContents(row)
-            self.parameter_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+            self.parameter_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
             self.parameter_table.resizeColumnsToContents()
             self.parameter_table.setSortingEnabled(True)
 
@@ -427,7 +426,7 @@ class FunctionInspectionWidget(QtGui.QMainWindow):
         """
         Action for renaming potential wrapper functions to the wrapped API if they have a dummy name.
         """
-        dialog = self.FunctionFilterDialog(self.context_filter)
+        dialog = self.FunctionFilterDialog(self, self.context_filter)
         dialog.exec_()
         self.context_filter = dialog.getAdjustedFunctionFilter()
         self.populateFunctionTable()

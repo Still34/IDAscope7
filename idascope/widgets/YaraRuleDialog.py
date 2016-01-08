@@ -24,35 +24,38 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
+import idascope.core.helpers.QtShim as QtShim
+QDialog = QtShim.get_QDialog()
 
 
-class YaraRuleDialog(QtGui.QDialog):
+class YaraRuleDialog(QDialog):
     """ oriented on: https://stackoverflow.com/a/11764475 """
 
-    def __init__(self, rule, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+    def __init__(self, parent, rule):
+        self.cc = parent.cc
+        self.cc.QDialog.__init__(self, parent)
+        # references to Qt-specific modules
         # create GUI elements
         self.rule = rule
         self._createOkButton()
         # glue everything together
         # create scroll for rule text edit
-        self.scroll = QtGui.QScrollArea()
+        self.scroll = self.cc.QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Preferred)
+        self.scroll.setVerticalScrollBarPolicy(self.cc.QtCore.Qt.ScrollBarAlwaysOn)
+        sizePolicy = self.cc.QSizePolicy(self.cc.QSizePolicy.Expanding, self.cc.QSizePolicy.Preferred)
         self.setSizePolicy(sizePolicy)
-        scrollContents = QtGui.QWidget()
+        scrollContents = self.cc.QWidget()
         self.scroll.setWidget(scrollContents)
         # create growing textedit for rule display
-        self.textLayout = QtGui.QVBoxLayout()
-        self.rule_textedit = GrowingTextEdit()
+        self.textLayout = self.cc.QVBoxLayout()
+        self.rule_textedit = self.cc.GrowingTextEdit(self)
         self.setMinimumHeight(300)
         self.setMinimumWidth(550)
         self.rule_textedit.setReadOnly(True)
         self.textLayout.addWidget(self.rule_textedit)
 
-        dialog_layout = QtGui.QVBoxLayout(scrollContents)
+        dialog_layout = self.cc.QVBoxLayout(scrollContents)
 
         dialog_layout.addLayout(self.textLayout)
         dialog_layout.addLayout(self.button_layout)
@@ -64,8 +67,8 @@ class YaraRuleDialog(QtGui.QDialog):
             self.setWindowTitle(self.tr("No rule selected."))
 
     def _createOkButton(self):
-        self.button_layout = QtGui.QHBoxLayout()
-        self.ok_button = QtGui.QPushButton(self.tr("OK"))
+        self.button_layout = self.cc.QHBoxLayout()
+        self.ok_button = self.cc.QPushButton(self.tr("OK"))
         self.ok_button.clicked.connect(self.accept)
         self.button_layout.addStretch(1)
         self.button_layout.addWidget(self.ok_button)
@@ -74,21 +77,3 @@ class YaraRuleDialog(QtGui.QDialog):
     def accept(self):
         self.done(1)
 
-
-class GrowingTextEdit(QtGui.QTextEdit):
-    """ source: https://stackoverflow.com/a/11764475 """
-
-    def __init__(self, *args, **kwargs):
-        super(GrowingTextEdit, self).__init__(*args, **kwargs)
-        self.document().contentsChanged.connect(self.sizeChange)
-
-        self.heightMin = 0
-        self.heightMax = 1400
-
-    def getHeight(self):
-        return self.document().size().height()
-
-    def sizeChange(self):
-        docHeight = self.getHeight()
-        if self.heightMin <= docHeight <= self.heightMax:
-            self.setMinimumHeight(docHeight)

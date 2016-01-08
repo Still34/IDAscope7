@@ -155,7 +155,11 @@ class WinApiProvider():
                 document_content = self._getSingleDocumentContent(filename)
             return document_content, anchor
         else:
-            return self._getSingleDocumentContent(url.toString()), anchor
+            # PyQt5 percent-encodes urls when performing toString() on them while PySide returns "" when using fromPercentEncoding()
+            decoded_url = url.fromPercentEncoding(url.toString())
+            if not decoded_url:
+                decoded_url = url.toString()
+            return self._getSingleDocumentContent(decoded_url), anchor
 
     def hasBackwardHistory(self):
         """
@@ -275,8 +279,9 @@ class WinApiProvider():
         for filename in filenames:
             # sanitize filenames as obtained from the config file.
             filename = filename.replace('\\', self.os.sep)
-            document_content += "<li><a href=\"%s\">%s</a></li>" % (self.idascope_config.winapi_rootdir + \
-                filename, filename)
+            filepath = self.idascope_config.winapi_rootdir + filename
+            document_content += "<li><a href=\"%s\">%s</a></li>" % (filepath, filename)
+            # document_content += "<li><a href=\"%s\">%s</a></li>" % (self.idascope_config.winapi_rootdir + filename, filename)
         return document_content
 
     def _getSingleDocumentContent(self, filename):

@@ -24,36 +24,37 @@
 #
 ########################################################################
 
-from PySide import QtGui, QtCore
-from PySide.QtGui import QIcon, QLineEdit
+import idascope.core.helpers.QtShim as QtShim
+QMainWindow = QtShim.get_QMainWindow()
 
 from NumberQTableWidgetItem import NumberQTableWidgetItem
 from FunctionFilterDialog import FunctionFilterDialog
 
 
-class SemanticExplorerWidget(QtGui.QMainWindow):
+class SemanticExplorerWidget(QMainWindow):
     """
     This widget is the front-end for the semantic inspection.
     """
 
     def __init__(self, parent):
-        QtGui.QMainWindow.__init__(self)
+        self.cc = parent.cc
+        self.cc.QMainWindow.__init__(self)
         print "[|] loading SemanticExplorerWidget"
         # enable access to shared IDAscope modules
         self.parent = parent
         self.name = "Semantics"
-        self.icon = QIcon(self.parent.config.icon_file_path + "semantics.png")
-        self.winapi_icon = QIcon(self.parent.config.icon_file_path + "winapi.png")
+        self.icon = self.cc.QIcon(self.parent.config.icon_file_path + "semantics.png")
+        self.winapi_icon = self.cc.QIcon(self.parent.config.icon_file_path + "winapi.png")
         # This widget relies on the semantic identifier and uses some functions via IDA proxy
         self.smtx = self.parent.semantic_explorer
-        self.ida_proxy = self.parent.ida_proxy
+        self.ida_proxy = self.cc.ida_proxy
         # references to Qt-specific modules
-        self.QtGui = QtGui
-        self.QtCore = QtCore
+        self.QtGui = self.cc.QtGui
+        self.QtCore = self.cc.QtCore
         self.NumberQTableWidgetItem = NumberQTableWidgetItem
         self.FunctionFilterDialog = FunctionFilterDialog
         self.isUsingCategories = True
-        self.central_widget = self.QtGui.QWidget()
+        self.central_widget = self.cc.QWidget()
         self.setCentralWidget(self.central_widget)
         self._createGui()
         # local fields
@@ -63,10 +64,10 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         """
         Create the main GUI with its components.
         """
-        self.api_filter_label = QtGui.QLabel("Filter")
-        self.arguments_label = QtGui.QLabel("Arguments of the selected API call: <none>")
+        self.api_filter_label = self.cc.QLabel("Filter")
+        self.arguments_label = self.cc.QLabel("Arguments of the selected API call: <none>")
 
-        self.api_filter_lineedit = QLineEdit()
+        self.api_filter_lineedit = self.cc.QLineEdit()
         self.api_filter_lineedit.textChanged.connect(self._filterMatchesTree)
 
         self._createToolbar()
@@ -75,45 +76,45 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         self._createArgumentsTable()
 
         # layout and fill the widget
-        semantics_layout = QtGui.QVBoxLayout()
+        semantics_layout = self.cc.QVBoxLayout()
 
-        hits_info_widget = QtGui.QWidget()
-        hits_info_layout = QtGui.QHBoxLayout()
+        hits_info_widget = self.cc.QWidget()
+        hits_info_layout = self.cc.QHBoxLayout()
         hits_info_layout.addWidget(self.api_filter_label)
         hits_info_layout.addWidget(self.api_filter_lineedit)
         hits_info_widget.setLayout(hits_info_layout)
 
-        hits_widget = QtGui.QWidget()
-        upper_layout = QtGui.QVBoxLayout()
+        hits_widget = self.cc.QWidget()
+        upper_layout = self.cc.QVBoxLayout()
         upper_layout.addWidget(hits_info_widget)
         upper_layout.addWidget(self.matches_tree_widget)
         hits_widget.setLayout(upper_layout)
 
-        api_arguments_widget = QtGui.QWidget()
-        api_arguments_layout = QtGui.QHBoxLayout()
+        api_arguments_widget = self.cc.QWidget()
+        api_arguments_layout = self.cc.QHBoxLayout()
         api_arguments_layout.addWidget(self.arguments_table)
         api_arguments_widget.setLayout(api_arguments_layout)
 
-        self.winapi_button = QtGui.QPushButton(self.winapi_icon, "", self)
+        self.winapi_button = self.cc.QPushButton(self.winapi_icon, "", self)
         self.winapi_button.setToolTip("Look up this API in WinAPI view.")
         self.winapi_button.resize(self.winapi_button.sizeHint())
         self.winapi_button.clicked.connect(self._onWinApiButtonClicked)
 
-        selected_api_widget = QtGui.QWidget()
-        selected_api_layout = QtGui.QHBoxLayout()
+        selected_api_widget = self.cc.QWidget()
+        selected_api_layout = self.cc.QHBoxLayout()
         selected_api_layout.addWidget(self.arguments_label)
         selected_api_layout.addWidget(self.winapi_button)
         selected_api_layout.addStretch(1)
         selected_api_widget.setLayout(selected_api_layout)
 
-        lower_tables_widget = QtGui.QWidget()
-        lower_tables_layout = QtGui.QVBoxLayout()
+        lower_tables_widget = self.cc.QWidget()
+        lower_tables_layout = self.cc.QVBoxLayout()
         lower_tables_layout.addWidget(selected_api_widget)
         lower_tables_layout.addWidget(api_arguments_widget)
         lower_tables_widget.setLayout(lower_tables_layout)
 
-        splitter = self.QtGui.QSplitter(self.QtCore.Qt.Vertical)
-        q_clean_style = QtGui.QStyleFactory.create('Plastique')
+        splitter = self.cc.QSplitter(self.QtCore.Qt.Vertical)
+        q_clean_style = self.cc.QStyleFactory.create('Plastique')
         splitter.setStyle(q_clean_style)
         splitter.addWidget(hits_widget)
         splitter.addWidget(lower_tables_widget)
@@ -139,7 +140,7 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         Create the refresh action for the toolbar. On activiation, it triggers a scan of I{SemanticExplorer} and
         updates the GUI.
         """
-        self.refreshAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "scan.png"), "Refresh the "
+        self.refreshAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scan.png"), "Refresh the "
             + "view by scanningagain.", self)
         self.refreshAction.triggered.connect(self._onRefreshButtonClicked)
 
@@ -148,16 +149,16 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         Create the toggle categories action for the toolbar. On activiation, it triggers a change in the display,
         showing the matches grouped by categories or all at once.
         """
-        self.categorizeAction = QtGui.QAction(QIcon(self.parent.config.icon_file_path + "tags.png"), "Show matches by categories.", self)
+        self.categorizeAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "tags.png"), "Show matches by categories.", self)
         self.categorizeAction.triggered.connect(self._onCategorizeButtonClicked)
 
     def _createSemanticMatchesTree(self):
         """
         Create the tree in the top view used for showing all functions covered by scanning for semantic information.
         """
-        self.matches_tree_widget = QtGui.QWidget()
-        matches_tree_layout = QtGui.QVBoxLayout()
-        self.matches_tree = QtGui.QTreeWidget()
+        self.matches_tree_widget = self.cc.QWidget()
+        matches_tree_layout = self.cc.QVBoxLayout()
+        self.matches_tree = self.cc.QTreeWidget()
         self.matches_tree.setColumnCount(1)
         self.matches_tree.setHeaderLabels(["Semantics"])
         self.matches_tree.itemDoubleClicked.connect(self._onMatchesTreeItemDoubleClicked)
@@ -169,7 +170,7 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         """
         Create the bottom table used for showing all arguments for the selected API call
         """
-        self.arguments_table = QtGui.QTableWidget()
+        self.arguments_table = self.cc.QTableWidget()
         self.arguments_table.setSortingEnabled(False)
 
 ################################################################################
@@ -193,7 +194,7 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         if self.isUsingCategories:
             categorized_matches = self.smtx.getCategorizedMatches()
             for category in categorized_matches.keys():
-                root = self.QtGui.QTreeWidgetItem(self.matches_tree)
+                root = self.cc.QTreeWidgetItem(self.matches_tree)
                 for match in categorized_matches[category]:
                     num_matched_semantics += self.addMatchToTree(match, matchFilter, root)
                 if category == "":
@@ -215,18 +216,18 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
         api_names = [api["api_name"].lower() for api in match["hit"]["apis"]]
         is_matching_filter = matchFilter.lower() in tag or [api_name for api_name in api_names if matchFilter.lower() in api_name]
         if not matchFilter or is_matching_filter:
-            root = self.QtGui.QTreeWidgetItem(tree_node)
+            root = self.cc.QTreeWidgetItem(tree_node)
             root.setText(0, "%s (0x%x)" % (match["tag"],
                                                 match["hit"]["start_addr"]))
             root.setText(1, "%s" % (self.ida_proxy.GetFunctionName(match["hit"]["start_addr"])))
             if matchFilter and matchFilter.lower() in match["tag"].lower():
-                root.setForeground(0, self.QtGui.QBrush(self.QtGui.QColor(0x0000FF)))
+                root.setForeground(0, self.cc.QBrush(self.cc.QColor(0x0000FF)))
             for api in reversed(match["hit"]["apis"]):
-                api_information = self.QtGui.QTreeWidgetItem(root)
+                api_information = self.cc.QTreeWidgetItem(root)
                 api_information.setText(0, "0x%x %s" % (api["addr"], api["api_name"]))
                 api_information.setText(1, "%s" % (self.ida_proxy.GetFunctionName(api["addr"])))
                 if matchFilter and matchFilter.lower() in api["api_name"].lower():
-                    api_information.setForeground(0, self.QtGui.QBrush(self.QtGui.QColor(0xFF0000)))
+                    api_information.setForeground(0, self.cc.QBrush(self.cc.QColor(0xFF0000)))
                 self.qtreewidgetitems_to_addresses[api_information] = api["addr"]
                 arg_details = {"api_name": api["api_name"],
                                "api_args": api["arguments"]}
@@ -248,15 +249,15 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
             for row, argument in enumerate(arguments):
                 for column, column_name in enumerate(self.arguments_table_header_labels):
                     if column == 0:
-                        tmp_item = self.QtGui.QTableWidgetItem("%s" % (argument["arg_type"] if "arg_type" in argument else ""))
+                        tmp_item = self.cc.QTableWidgetItem("%s" % (argument["arg_type"] if "arg_type" in argument else ""))
                     elif column == 1:
-                        tmp_item = self.QtGui.QTableWidgetItem("%s" % argument["arg_name"])
+                        tmp_item = self.cc.QTableWidgetItem("%s" % argument["arg_name"])
                     elif column == 2:
-                        tmp_item = self.QtGui.QTableWidgetItem("%s" % argument["arg_value"])
+                        tmp_item = self.cc.QTableWidgetItem("%s" % argument["arg_value"])
                     tmp_item.setFlags(tmp_item.flags() & ~self.QtCore.Qt.ItemIsEditable)
                     self.arguments_table.setItem(row, column, tmp_item)
                 self.arguments_table.resizeRowToContents(row)
-            self.arguments_table.setSelectionMode(self.QtGui.QAbstractItemView.SingleSelection)
+            self.arguments_table.setSelectionMode(self.cc.QAbstractItemView.SingleSelection)
             self.arguments_table.resizeColumnsToContents()
 
     def _resetLowerTables(self):
@@ -331,3 +332,4 @@ class SemanticExplorerWidget(QtGui.QMainWindow):
 
     def _filterMatchesTree(self):
         self.populateMatchesTree(self.api_filter_lineedit.text())
+

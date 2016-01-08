@@ -5,8 +5,8 @@ from idascope.core.IdaProxy import IdaProxy
 
 class GraphHelper():
 
-    def __init__(self):
-        self.ida_proxy = IdaProxy()
+    def __init__(self, class_collection):
+        self.ida_proxy = class_collection.ida_proxy
 
     def handleGraphRecursions(self, graph):
         """
