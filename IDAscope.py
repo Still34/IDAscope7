@@ -24,7 +24,6 @@
 #
 ########################################################################
 
-from ClassCollection import ClassCollection
 import idascope.core.helpers.QtShim as QtShim
 QtGui = QtShim.get_QtGui()
 QtCore = QtShim.get_QtCore()
@@ -35,6 +34,7 @@ import idaapi
 from idaapi import PluginForm, plugin_t
 
 import idascope.config as config
+from idascope.core.helpers.ClassCollection import ClassCollection
 from idascope.core.structures.IDAscopeConfiguration import IDAscopeConfiguration
 from idascope.core.SemanticIdentifier import SemanticIdentifier
 from idascope.core.DocumentationHelper import DocumentationHelper
