@@ -68,7 +68,13 @@ class IDAscopeConfiguration():
             + self._normalizePath(configuration["paths"]["inspection_profiles_folder"])
         self.winapi_keywords_file = self.root_file_path + self.cc.os.sep + \
             self._normalizePath(configuration["paths"]["winapi_keywords_file"])
-        self.winapi_rootdir = self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
+        if self.cc.os_path.isdir(self._normalizePath(configuration["paths"]["winapi_rootdir"])):
+            #  winapi_rootdir is a file path
+            self.winapi_rootdir = self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
+        else:
+            #  winapi_rootdir is a relative path from the working directory
+            self.winapi_rootdir = self.root_file_path + self.cc.os.sep + \
+                self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
         # widget related configurations
         self.winapi_shortcut = configuration["winapi"]["search_hotkey"]
         self.winapi_load_keyword_database = configuration["winapi"]["load_keyword_database"]
