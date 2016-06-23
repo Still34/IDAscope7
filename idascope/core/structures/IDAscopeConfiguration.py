@@ -71,7 +71,8 @@ class IDAscopeConfiguration():
         if self.cc.os_path.isdir(self._normalizePath(configuration["paths"]["winapi_rootdir"])):
             #  winapi_rootdir is a file path
             self.winapi_rootdir = self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
-        else:
+        elif self.cc.os_path.isdir(self.root_file_path + self.cc.os.sep + \
+                self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep ) :
             #  winapi_rootdir is a relative path from the working directory
             self.winapi_rootdir = self.root_file_path + self.cc.os.sep + \
                 self._normalizePath(configuration["paths"]["winapi_rootdir"]) + self.cc.os.sep
