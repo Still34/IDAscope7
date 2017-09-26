@@ -12,6 +12,8 @@ configuration = {
         "inspection_profiles_folder": "idascope\\data\\inspection_profiles",
         "winapi_keywords_file": "idascope\\data\\winapi_keywords.json",
         "winapi_rootdir": "C:\\WinAPI\\" if os.name == "nt" else os.path.join(idaapi.get_user_idadir(), "winapi", "").replace(os.sep, "\\")
+        # example of file path from working directory 
+        # "winapi_rootdir": "idascope\\data\\WinAPI" if os.name == "nt" else os.path.join(idaapi.get_user_idadir(), "winapi", "").replace(os.sep, "\\")
         },
     "winapi": {
         "search_hotkey": "ctrl+y",
