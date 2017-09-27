@@ -63,7 +63,7 @@ class YaraRule(object):
         unique_names = {}
         for string in self.strings:
             if string[1] in unique_names:
-                print "[!] Rule %s has duplicate variable name: \"%s\"" % (self.rule_name, self.filename, string[1])
+                print "[!] Rule %s (%s) has duplicate variable name: \"%s\"" % (self.rule_name, self.filename, string[1])
                 raise Exception("Duplicate variable name")
             else:
                 unique_names[string[1]] = "loaded"
