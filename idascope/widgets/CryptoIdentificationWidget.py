@@ -91,7 +91,7 @@ class CryptoIdentificationWidget(QMainWindow):
         Create an action for the scan button of the toolbar and connect it.
         """
         self.scanArithLogAction = self.cc.QAction(self.cc.QIcon(self.parent.config.icon_file_path + "scan_arithmetic.png"), \
-            "Perform deep scan with crypto signatures (might take some time)", self)
+            "Perform scan to determine heuristically which blocks look like they do crypto", self)
         self.scanArithLogAction.triggered.connect(self._onScanArithLogButtonClicked)
 
     def _createScanSignatureAction(self):
