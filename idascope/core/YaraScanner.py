@@ -159,6 +159,6 @@ class YaraScanner():
     def _translateMemOffsetToVirtualAddress(self, offset):
         va_offset = 0
         for seg in self.segment_offsets:
-            if seg[1] < offset < seg[2]:
+            if seg[1] <= offset < seg[2]:
                 va_offset = seg[0] + (offset - seg[1])
         return va_offset
