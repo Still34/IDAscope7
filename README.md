@@ -4,16 +4,18 @@ simpliFiRE.IDAscope - An IDA Pro extension for easier (malware) reverse engineer
 Description
 -----------
 
+**Note:** This is an updated version of Daniel Plohmann's [excellent work](https://bitbucket.org/daniel_plohmann/simplifire.idascope/src/master/). This version should be *mostly* compatible with the latest IDA Pro. I couldn't open a PR on BitBucket for some reason, so I'm establishing this fork on GitHub instead. There was no license file included with the original repo, so I won't include a new one here.
+
 IDAscope is an IDA Pro extension with the goal to ease the task of (malware) reverse engineering with a current focus on x86 Windows. It consists of multiple tabs, containing functionality to achieve different goals such as fast identification of semantically interesting locations in the analysis target, seamless access to MSDN documentation of Windows API, and finding of potential crypto/compression algorithms.
 
 Instructions
 ------------
 
-Go to https://bitbucket.org/daniel_plohmann/simplifire.idascope/ and download a release package or check out the repository for the latest version of IDAscope. 
+Go to <https://github.com/Still34/IDAscope7> and download a release package or check out the repository for the latest version of IDAscope.
 
-Basic installation is easy: unzipping the package in a location where it can be reached from IDA Pro is enough. To use the extension, simply run IDAscope.py from the root directory via IDA Pro's "File / Script File". 
+Basic installation is easy: unzipping the package in a location where it can be reached from IDA Pro is enough. To use the extension, simply run `IDAscope.py` from the root directory via IDA Pro's "File / Script File".
 
-To make the MSDN database to the WinAPI browser available, follow the steps described in IDAscope/documentation/manual.html.
+To make the MSDN database to the WinAPI browser available, follow the steps described in `IDAscope/documentation/manual.html`.
 
 Final Words
 -----------
