@@ -31,7 +31,8 @@ QtWidgets = QtShim.get_QtWidgets()
 
 import idc
 import idaapi
-from idaapi import PluginForm, plugin_t
+from idaapi import plugin_t
+from ida_kernwin import PluginForm
 
 import idascope.config as config
 from idascope.core.helpers.ClassCollection import ClassCollection
@@ -168,12 +169,12 @@ class IDAscopeForm(PluginForm):
         del IDASCOPE
 
     def Show(self):
-        if idc.GetInputMD5() is None:
+        if idc.retrieve_input_file_md5() is None:
             return
         else:
             return PluginForm.Show(self,
                 NAME,
-                options=(PluginForm.FORM_CLOSE_LATER | PluginForm.FORM_RESTORE | PluginForm.FORM_SAVE))
+                options=(PluginForm.WCLS_CLOSE_LATER | PluginForm.WOPN_RESTORE | PluginForm.WCLS_SAVE))
 
 ################################################################################
 # functionality offered to IDAscope's widgets
@@ -205,7 +206,7 @@ class IDAscopeForm(PluginForm):
         hotkey_index = len(HOTKEYS)
         hotkey_name = "idascope_HOTKEY_%d" % hotkey_index
         HOTKEYS.append(py_function_pointer)
-        self.cc.ida_proxy.CompileLine('static %s() { RunPythonStatement("HOTKEYS[%d]()"); }' % (hotkey_name, hotkey_index))
+        self.cc.ida_proxy.compile_idc_text('static %s() { RunPythonStatement("HOTKEYS[%d]()"); }' % (hotkey_name, hotkey_index))
         self.cc.ida_proxy.AddHotkey(shortcut, hotkey_name)
 
 ################################################################################

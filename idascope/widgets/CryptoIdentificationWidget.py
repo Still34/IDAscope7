@@ -424,7 +424,7 @@ class CryptoIdentificationWidget(QMainWindow):
                 prev_head = self.ida_proxy.PrevHead(addr, addr - 14)
                 flags = self.ida_proxy.GetFlags(prev_head)
                 if not self.ida_proxy.RptCmt(addr):
-                    if self.ida_proxy.isCode(flags):
+                    if self.ida_proxy.is_code(flags):
                         # maximum instruction length on Intel is 14 bytes, so we don't need to search further back.
                         self.ida_proxy.MakeRptCmt(prev_head, place.getSignatureNames())
                     else:

@@ -73,7 +73,7 @@ class AnnotationsProvider():
         # FLAGs that help to identify names:
             # iterate via Names() to get addresses
             # use the following functions to dissect the names
-            # idaapi.isCode()
+            # idaapi.is_code()
             # idaapi.isData()
             # idaapi.has_cmt()
             # idaapi.isVar()

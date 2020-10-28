@@ -115,7 +115,7 @@ IDAscope.idascope.core.IdaProxy.IdaProxy.Functions	IDAscope.idascope.core.IdaPro
 IDAscope.idascope.core.IdaProxy.IdaProxy.Demangle	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#Demangle
 IDAscope.idascope.core.IdaProxy.IdaProxy.Heads	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#Heads
 IDAscope.idascope.core.IdaProxy.IdaProxy.SetColor	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#SetColor
-IDAscope.idascope.core.IdaProxy.IdaProxy.CompileLine	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#CompileLine
+IDAscope.idascope.core.IdaProxy.IdaProxy.compile_idc_text	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#compile_idc_text
 IDAscope.idascope.core.IdaProxy.IdaProxy.get_byte	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#get_byte
 IDAscope.idascope.core.IdaProxy.IdaProxy.Segments	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#Segments
 IDAscope.idascope.core.IdaProxy.IdaProxy.SegEnd	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#SegEnd
@@ -139,7 +139,7 @@ IDAscope.idascope.core.IdaProxy.IdaProxy.FlowChart	IDAscope.idascope.core.IdaPro
 IDAscope.idascope.core.IdaProxy.IdaProxy.FuncItems	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#FuncItems
 IDAscope.idascope.core.IdaProxy.IdaProxy.PrevHead	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#PrevHead
 IDAscope.idascope.core.IdaProxy.IdaProxy.AddHotkey	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#AddHotkey
-IDAscope.idascope.core.IdaProxy.IdaProxy.isCode	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#isCode
+IDAscope.idascope.core.IdaProxy.IdaProxy.is_code	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#is_code
 IDAscope.idascope.core.IdaProxy.IdaProxy.GetOperandValue	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#GetOperandValue
 IDAscope.idascope.core.IdaProxy.IdaProxy.get_func	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#get_func
 IDAscope.idascope.core.IdaProxy.IdaProxy.GetType	IDAscope.idascope.core.IdaProxy.IdaProxy-class.html#GetType
