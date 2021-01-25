@@ -66,7 +66,6 @@ class IdaProxy():
         self.FL_CN = self.idc.fl_CN
         self.FUNC_LIB = self.idaapi.FUNC_LIB
         self.FUNCATTR_END = self.idc.FUNCATTR_END
-        self.INF_SHORT_DEMNAMES = self.idc.INF_SHORT_DEMNAMES
         self.SN_NOWARN = self.idc.SN_NOWARN
         self.SN_NOCHECK = self.idc.SN_NOCHECK
         self.SA_REL_BYTE = self.idc.saRelByte
